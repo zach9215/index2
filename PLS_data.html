@@ -1,0 +1,4034 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私募基金监管案例</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #watermark-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.1;
+        }
+        
+        .watermark {
+            position: absolute;
+            font-size: 24px;
+            color: #666;
+            transform: rotate(-30deg);
+            opacity: 0.15;
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        .back-to-home {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .back-to-home:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .back-to-home i {
+            margin-right: 5px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 30px 0 20px;
+            border-bottom: 1px solid #e1e4e8;
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        header:before {
+            content: "";
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        header:after {
+            content: "";
+            position: absolute;
+            bottom: -25px;
+            left: -25px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-top: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .sort-indicator {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e1e4e8;
+        }
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+        .search-group {
+            flex: 0 0 100%;
+            margin-top: 10px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .cases-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            table-layout: fixed;
+        }
+        .cases-table th {
+            background: #2c5282;
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+            position: sticky;
+            top: 0;
+        }
+        .cases-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        .cases-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .cases-table tr:hover {
+            background-color: #ebf8ff;
+        }
+        
+        .date-cell {
+            min-width: 120px;
+            white-space: nowrap;
+        }
+        
+        .penalty-reason-cell {
+            width: 45%;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 36px;
+        }
+        .pagination button.active {
+            background: #2c5282;
+            color: white;
+            border-color: #2c5282;
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination .ellipsis {
+            padding: 8px 5px;
+            border: none;
+            background: transparent;
+            cursor: default;
+            min-width: auto;
+        }
+        .pagination .page-info {
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            cursor: default;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+        .simple-footer {
+            text-align: center;
+            color: #718096;
+            font-size: 0.85rem;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        .footer-line {
+            height: 7px;
+            background: #e2e8f0;
+            width: 80%;
+            margin: 0 auto 15px;
+        }
+        .highlight {
+            background-color: #ffd54f;
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+        .case-details {
+            background: #e1e8f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #2c5282;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .case-details h4 {
+            margin-bottom: 10px;
+            color: #1a365d;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-style: italic;
+        }
+        
+        .mobile-case-card {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #4299e1;
+            transition: all 0.3s ease;
+        }
+        .mobile-case-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .mobile-case-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .mobile-case-card .card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .card-item {
+            margin-bottom: 8px;
+        }
+        .card-label {
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        .card-value {
+            font-size: 0.95rem;
+        }
+        
+        .penalty-reason-mobile {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+        }
+        
+        @media (max-width: 992px) {
+            .cases-table {
+                min-width: 700px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .filter-group {
+                min-width: 100%;
+            }
+            .search-group {
+                margin-top: 0;
+            }
+            
+            .table-container {
+                display: none;
+            }
+            .mobile-cases-container {
+                display: block;
+            }
+            .mobile-case-card {
+                display: block;
+            }
+            
+            .pagination button {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .mobile-case-card .card-body {
+                grid-template-columns: 1fr;
+            }
+            .case-details {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            .mobile-case-card {
+                padding: 12px;
+            }
+            .card-item {
+                margin-bottom: 6px;
+            }
+            .card-label {
+                font-size: 0.85rem;
+            }
+            .card-value {
+                font-size: 0.9rem;
+            }
+            .penalty-reason-mobile {
+                border-top: 1px dashed #e2e8f0;
+                padding-top: 8px;
+            }
+        }
+        
+        .detail-section {
+            margin-bottom: 15px;
+        }
+        .detail-title {
+            font-weight: bold;
+            color: #2c5282;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .detail-title i {
+            margin-right: 8px;
+        }
+        .detail-content {
+            padding-left: 24px;
+        }
+        
+        .initial-hint {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+            font-style: italic;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .initial-hint i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #a0aec0;
+        }
+        
+        .month-tip {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-top: 5px;
+            padding-left: 5px;
+        }
+        
+        .pagination-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #4a5568;
+            font-size: 0.9rem;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .analysis-panel {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .date-range-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .date-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .date-input-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+        .date-input-group input {
+            padding: 10px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .analyze-btn {
+            padding: 10px 20px;
+            background: #2c5282;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            align-self: flex-end;
+        }
+        .analyze-btn:hover {
+            background: #1a365d;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c5282;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+        
+        @media (max-width: 768px) {
+            .analysis-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="watermark-container"></div>
+    
+    <header style="position: relative;">
+        <a href="index.html" class="back-to-home">
+            <i class="fas fa-arrow-left"></i> 返回导航
+        </a>
+        <h1>私募基金处分/处罚案例</h1>
+        <div class="subtitle">监管案例浏览（2025 - ）</div>
+        <div class="sort-indicator">(按发文日期排列)</div>
+    </header>
+    
+    <div class="container">
+        <div class="controls">
+            <div class="filter-group">
+                <label for="month-filter">筛选月份</label>
+                <select id="month-filter">
+                    <option value="all">所有月份</option>
+                </select>
+                <div class="month-tip">案例发文月份</div>
+            </div>
+            <div class="filter-group">
+                <label for="regulatory-filter">监管机构</label>
+                <select id="regulatory-filter">
+                    <option value="all">所有监管机构</option>
+                    <option value="中基协">中基协</option>
+                    <option value="北京监管局">北京监管局</option>
+                    <option value="天津监管局">天津监管局</option>
+                    <option value="河北监管局">河北监管局</option>
+                    <option value="山西监管局">山西监管局</option>
+                    <option value="内蒙古监管局">内蒙古监管局</option>
+                    <option value="辽宁监管局">辽宁监管局</option>
+                    <option value="吉林监管局">吉林监管局</option>
+                    <option value="黑龙江监管局">黑龙江监管局</option>
+                    <option value="上海监管局">上海监管局</option>
+                    <option value="江苏监管局">江苏监管局</option>
+                    <option value="浙江监管局">浙江监管局</option>
+                    <option value="安徽监管局">安徽监管局</option>
+                    <option value="福建监管局">福建监管局</option>
+                    <option value="江西监管局">江西监管局</option>
+                    <option value="山东监管局">山东监管局</option>
+                    <option value="河南监管局">河南监管局</option>
+                    <option value="湖北监管局">湖北监管局</option>
+                    <option value="湖南监管局">湖南监管局</option>
+                    <option value="广东监管局">广东监管局</option>
+                    <option value="广西监管局">广西监管局</option>
+                    <option value="海南监管局">海南监管局</option>
+                    <option value="重庆监管局">重庆监管局</option>
+                    <option value="四川监管局">四川监管局</option>
+                    <option value="贵州监管局">贵州监管局</option>
+                    <option value="云南监管局">云南监管局</option>
+                    <option value="西藏监管局">西藏监管局</option>
+                    <option value="陕西监管局">陕西监管局</option>
+                    <option value="甘肃监管局">甘肃监管局</option>
+                    <option value="青海监管局">青海监管局</option>
+                    <option value="宁夏监管局">宁夏监管局</option>
+                    <option value="新疆监管局">新疆监管局</option>
+                    <option value="深圳监管局">深圳监管局</option>
+                    <option value="大连监管局">大连监管局</option>
+                    <option value="宁波监管局">宁波监管局</option>
+                    <option value="厦门监管局">厦门监管局</option>
+                    <option value="青岛监管局">青岛监管局</option>
+                </select>
+            </div>
+            <div class="filter-group search-group">
+                <label for="search-input">搜索关键词</label>
+                <input type="text" id="search-input" placeholder="输入监管机构、处罚措施、处罚原因等...">
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table class="cases-table">
+                <thead>
+                    <tr>
+                        <th style="width:5%">序号</th>
+                        <th style="width:15%" class="date-cell">发文日期</th>
+                        <th style="width:15%">监管机构</th>
+                        <th style="width:20%">处罚措施</th>
+                        <th class="penalty-reason-cell">处罚原因</th>
+                    </tr>
+                </thead>
+                <tbody id="cases-body">
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mobile-cases-container" id="mobile-cases-container">
+        </div>
+        
+        <div id="case-details-container">
+            <div class="initial-hint">
+                <i class="fas fa-search"></i>
+                <p>请使用筛选条件或输入关键词搜索监管案例</p>
+            </div>
+        </div>
+        
+        <div class="pagination" id="pagination">
+        </div>
+        
+        <div class="pagination-info">
+            <i class="fas fa-info-circle"></i> 分页：当页数过多时，系统会自动省略中间页码，保留前后三页
+        </div>
+        
+        <div class="analysis-panel">
+            <div class="analysis-header">
+                <h2><i class="fas fa-chart-pie"></i> 案例数据分析</h2>
+                <div class="date-range-controls">
+                    <div class="date-input-group">
+                        <label for="start-date">开始日期</label>
+                        <input type="date" id="start-date" value="2025-01-01">
+                    </div>
+                    <div class="date-input-group">
+                        <label for="end-date">结束日期</label>
+                        <input type="date" id="end-date" value="2025-01-01">
+                    </div>
+                    <button class="analyze-btn" id="analyze-btn">
+                        <i class="fas fa-chart-bar"></i> 分析案例
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-grid" id="stats-container">
+            </div>
+        </div>
+    </div>
+    
+    <div class="simple-footer">
+        <div class="footer-line"></div>
+        <p>© 2025 | 判理社</p>
+        <p>合规运营  行稳致远</p>
+    </div>
+    
+    <script>
+        const penaltyCases = [
+        {
+            id: 1,
+            issueDate: "2025年7月1日",
+            documentDate: "2025年7月1日",
+            documentNumber: "沪证监决〔2025〕129号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX投资集团有限公司",
+            penaltyReason: "将私募基金的投资管理职能让渡他人行使，未履行谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 2,
+            issueDate: "2025年7月3日",
+            documentDate: "2025年6月26日",
+            documentNumber: "〔2025〕66 号",
+            regulatoryAgency: "广东监管局",
+            managerName: "珠海XXXX股权投资基金管理有限公司",
+            penaltyReason: "①未完整披露可能影响投资者合法权益的重大信息<br>②委托不具有基金销售业务资格的单位从事资金募集活动",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第九项、第二十四条、第三十三条;<br>《关于加强私募投资基金监管的若干规定》第六条第一款第八项、第十三条第一款"
+        },
+        {
+            id: 3,
+            issueDate: "2025年7月4日",
+            documentDate: "2025年5月13日",
+            documentNumber: "中基协处分〔2025〕107号;中基协处分〔2025〕108号;中基协处分〔2025〕109号;中基协处分〔2025〕110号",
+            regulatoryAgency: "中基协",
+            managerName: "嘉兴XXX投资管理有限公司",
+            penaltyReason: "①部分基金产品未按规定办理基金备案手续（2017-2020共14只基金产品未履行备案手续）<br>②未及时进行重大事项变更（法代、实控人变更未及时向协会报告）<br>③部分基金未单独建账<br>④部分基金产品的推介材料存在虚假记载（投资标的与募集说明书不符）<br>⑤允许非本机构雇佣的人员进行私募基金推介<br>⑥未获取投资者的收入或资产证明<br>⑦未妥善保存部分基金的投资者适当性等相关材料<br>⑧未按约定履行信息披露义务",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>何X（法代）：取消基金从业资格<br>杨XX（时任法代）：公开谴责<br>仲XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金管理人登记和基金备案办法（试行）》第十一条、第二十二条;<br>《私募投资基金备案须知》第十四条;<br>《私募投资基金募集行为管理办法》第十一条、第二十四条、第二十七条;<br>《私募投资基金信息披露管理办法》第十七条;<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第二十二条、第三十九条、第四十条"
+        },
+        {
+            id: 4,
+            issueDate: "2025年7月4日",
+            documentDate: "2025年7月3日",
+            documentNumber: "〔2025〕6号",
+            regulatoryAgency: "青岛监管局",
+            managerName: "山东XXXX投资管理股份有限公司",
+            penaltyReason: "部分基金未按照分配决议确定的金额向有关投资者进行分配，也未向其进行信披",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "<br>康XX（法代、时任总经理）：警示函，并记入证券期货市场诚信档案;<br>逢XX（总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款第二款、第三十三条;<br>《关于加强私募投资基金监管的若干规定》第九条第一款第五项"
+        },
+        {
+            id: 5,
+            issueDate: "2025年7月11日",
+            documentDate: "2025年7月3日",
+            documentNumber: "〔2025〕7号",
+            regulatoryAgency: "青岛监管局",
+            managerName: "XX（青岛）私募基金管理有限公司",
+            penaltyReason: "①利用基金财产为投资者以外的人牟取利益<br>②现场检查时未如实提供有关材料",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "<br>吴XX（副总经理、相关违规基金实际负责人）：警示函，并记入证券期货市场诚信档案;<br>朱XX（法代、总经理）：警示函，并记入证券期货市场诚信档案;<br>陆XX（相关违规基金基金经理）：警示函，并记入证券期货市场诚信档案;<br>段XX（从业人员-刻意隐瞒事实）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理条例》第三条第四款、第三十条第二项、第四十条、第四十一条第二款"
+        },
+        {
+            id: 6,
+            issueDate: "2025年7月8日",
+            documentDate: "2025年6月24日",
+            documentNumber: "〔2025〕65 号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广州XXX私募证券投资基金管理有限公司",
+            penaltyReason: "①公司个别产品的投资运作中未履行勤勉尽责义务，未实际履行投资管理职责<br>②公司个别产品投资运作中未按合同约定向投资者履行信息披露义务<br>③未妥善保存私募基金投资决策等方面的资料",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第二十六条、第三十三条"
+        },
+        {
+            id: 7,
+            issueDate: "2025年7月8日",
+            documentDate: "2025年7月3日",
+            documentNumber: "〔2025〕95号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "盐城XXXX私募基金管理有限公司",
+            penaltyReason: "①未按照合同进行投资运作<br>②信息披露工作不到位，未按规定为投资者开立中国证券投资基金业协会信息披露备份系统查询账号<br>③关联交易未向投资者进行信息披露",
+            managerPenalty: "责令改正（收到决定书30日内提交书面报告）",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第九条第一款第（八）项、第十一条;<br>《私募投资基金信息披露管理办法》第三条;<br>《私募投资基金监督管理暂行办法》第二十三条（九）项、第二十四条、第三十三条"
+        },
+        {
+            id: 8,
+            issueDate: "2025年7月8日",
+            documentDate: "2025年7月3日",
+            documentNumber: "〔2025〕94号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "盐城XXXX私募基金管理有限公司",
+            penaltyReason: "①未对部分私募基金进行风险评级<br>②投资者适当性管理不到位，未采取问卷调查等适当方式对投资者的风险识别能力和风险承担能力进行评估<br>③未妥善保存私募基金信息披露相关文件资料",
+            managerPenalty: "警示函（收到决定书30日内提交落实情况说明）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十六条、第十七条、第二十六条、第三十三条;<br>《私募投资基金信息披露管理办法》第二十一条"
+        },
+        {
+            id: 9,
+            issueDate: "2025年7月8日",
+            documentDate: "2025年7月2日",
+            documentNumber: "〔2025〕18号;〔2025〕19号",
+            regulatoryAgency: "海南监管局",
+            managerName: "海南XXX私募基金管理有限公司",
+            penaltyReason: "①未获取部分投资者的合格投资者证明文件，未认真履行谨慎勤勉义务<br>②私募基金投资者向非合格投资者转让基金份额的情形<br>③未妥善保存部分私募基金资料和记录",
+            managerPenalty: "责令改正，并记入资本市场诚信档案数据库",
+            staffPenalty: "廖XX（法代、总经理、执行董事）：警示函，并记入资本市场诚信档案数据库",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十一条第二款、第十二条、第二十六条、第三十三条;<br>《关于加强私募投资基金监管的若干规定》第七条第一款、第十三条第一款"
+        },
+        {
+            id: 10,
+            issueDate: "2025年7月8日",
+            documentDate: "2025年7月4日",
+            documentNumber: "〔2025〕20号;〔2025〕21号",
+            regulatoryAgency: "海南监管局",
+            managerName: "海南XX私募基金管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务，存在未独立开展投资决策的情形<br>②未按合同约定向投资者进行信息披露",
+            managerPenalty: "警示函，并记入资本市场诚信档案数据库",
+            staffPenalty: "周XX（法代、总经理、执行董事）：警示函，并记入资本市场诚信档案数据库",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第三十三条;<br>《关于加强私募投资基金监管的若干规定》第九条第一款、第十三条第一款"
+        },
+        {
+            id: 11,
+            issueDate: "2025年7月11日",
+            documentDate: "2025年7月1日",
+            documentNumber: "〔2025〕92号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "江苏XXX资产管理有限公司",
+            penaltyReason: "未按合同约定向投资者披露信息",
+            managerPenalty: "警示函（收到决定书30日内提交落实情况说明）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第三十三条"
+        },
+        {
+            id: 12,
+            issueDate: "2025年7月14日",
+            documentDate: "2025年7月10日",
+            documentNumber: "〔2025〕71号",
+            regulatoryAgency: "广东监管局",
+            managerName: "XX（横琴）资本管理有限公司",
+            penaltyReason: "从业人员（邹X）任职期间为多名非合格投资者代持管理人管理的基金产品份额",
+            managerPenalty: "",
+            staffPenalty: "邹X（从业人员）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十九条、第三十三条"
+        },
+        {
+            id: 13,
+            issueDate: "2025年7月15日",
+            documentDate: "2025年7月11日",
+            documentNumber: "〔2025〕22号",
+            regulatoryAgency: "海南监管局",
+            managerName: "海南XXX私募基金管理有限公司",
+            penaltyReason: "①从事与私募基金管理相冲突或者无关的业务<br>②未定期更新从业人员的有关信息",
+            managerPenalty: "责令改正，并记入资本市场诚信档案数据库",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第四条、第十二条第一款、第十三条第一款;<br>《私募投资基金监督管理暂行办法》第二十五条第一款、第三十三条"
+        },
+        {
+            id: 14,
+            issueDate: "2025年7月15日",
+            documentDate: "2025年6月24日",
+            documentNumber: "行政监管措施决定书〔2025〕93号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳XX资本管理有限公司",
+            penaltyReason: "募集私募证券基金时未与投资者签订基金合同",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十条第一款、第三十三条"
+        },
+        {
+            id: 15,
+            issueDate: "2025年7月16日",
+            documentDate: "2025年7月10日",
+            documentNumber: "〔2025〕15号;〔2025〕16号;〔2025〕17号",
+            regulatoryAgency: "江西监管局",
+            managerName: "共青城XX私募基金管理有限公司",
+            penaltyReason: "①存在股权代持情形，未就股权转让、实际控制人变更以及合规风控负责人不再履职等重大事项向中基协报告及履行变更手续<br>②未妥善保管个别投资者的合格投资者证明材料<br>③未按合同约定向个别投资者披露信息<br>④未取得基金从业资格的人员具体从事客户开发工作",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "<br>倪X（法代、总经理）：警示函，并记入证券期货市场诚信档案;<br>朱XX（股权代持事项直接责任人员）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十三条第九项、第二十四条、第二十五条第一款、第二十六条、第三十三条;<br>《关于加强私募投资基金监管的若干规定》第五条、第九条第一款第八项、第十三条第一款"
+        },
+        {
+            id: 16,
+            issueDate: "2025年7月18日",
+            documentDate: "2025年7月16日",
+            documentNumber: "",
+            regulatoryAgency: "重庆监管局",
+            managerName: "重庆XX股权投资基金管理有限公司",
+            penaltyReason: "将在管的部分私募基金进行借贷投资",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第八条第一款第一项、第十三条;<br>《私募投资基金监督管理暂行办法》第三十三条"
+        },
+        {
+            id: 17,
+            issueDate: "2025年7月18日",
+            documentDate: "2025年7月16日",
+            documentNumber: "",
+            regulatoryAgency: "重庆监管局",
+            managerName: "重庆XX股权投资基金管理有限公司",
+            penaltyReason: "将在管的部分私募基金进行明股实债投资",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第八条第一款第一项、第十三条;<br>《私募投资基金监督管理暂行办法》第三十三条"
+        },
+        {
+            id: 18,
+            issueDate: "2025年7月18日",
+            documentDate: "2025年5月13日",
+            documentNumber: "中基协处分〔2025〕111号;中基协处分〔2025〕112号;中基协处分〔2025〕113号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "将其管理的某私募证券投资基金产品的证券交易账户信息告知某投资者（为特定单一投向标的产品，并事先告知，且征得全体投资者同意而披露，披露的信息还包含了证券账户+交易密码）",
+            managerPenalty: "警告",
+            staffPenalty: "<br>刘X（法代、总经理）：警告;<br>徐XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条;<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 19,
+            issueDate: "2025年7月18日",
+            documentDate: "2025年7月14日;2025年7月17日",
+            documentNumber: "〔2025〕128号;〔2025〕134号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX创投管理顾问有限公司",
+            penaltyReason: "①管理、运用私募基金财产，未能恪尽职守地履行诚实信用、谨慎勤勉的义务<br>②挪用基金财产",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告，择机对整改落实情况组织检查验收）",
+            staffPenalty: "郑X（法代）：责令改正（收到决定之日起30日内提交书面整改报告，择机对整改落实情况组织检查验收）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第（四）项、第三十三条"
+        },
+        {
+            id: 20,
+            issueDate: "2025年7月18日",
+            documentDate: "2025年7月17日",
+            documentNumber: "〔2025〕132号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XX投资咨询有限公司",
+            penaltyReason: "自行销售私募基金前，未采取问卷调查等方式对投资者的风险识别能力和风险承担能力进行评估",
+            managerPenalty: "责令改正（收到决定之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十六条第一款、第三十三条"
+        },
+        {
+            id: 21,
+            issueDate: "2025年7月18日",
+            documentDate: "2025年7月17日",
+            documentNumber: "〔2025〕131号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX投资基金管理有限公司",
+            penaltyReason: "管理、运用私募基金财产，未能恪尽职守，履行诚实信用、谨慎勤勉的义务",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 22,
+            issueDate: "2025年7月21日",
+            documentDate: "2025年7月18日",
+            documentNumber: "〔2025〕104号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "苏州XX私募基金管理有限公司",
+            penaltyReason: "未按照合伙协议约定，向投资者披露私募基金信息的行为",
+            managerPenalty: "警示函（收到决定30日内提交落实情况说明）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第三十三条"
+        },
+        {
+            id: 23,
+            issueDate: "2025年7月21日",
+            documentDate: "2025年7月9日",
+            documentNumber: "〔2025〕44号;〔2025〕46号;〔2025〕47号",
+            regulatoryAgency: "四川监管局",
+            managerName: "成都XXXX股权投资基金管理有限公司",
+            penaltyReason: "①未严格履行投资者适当性管理义务<br>②未对私募基金产品进行风险评级<br>③未及时填报并定期更新管理人及从业人员的有关信息<br>④未建立关联交易和从业人员投资申报、登记、审查、处置等管理制度<br>⑤与其他公司共用办公场所，专职员工不足5人，反映出公司未认真履行谨慎勤勉义务",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案<br>（收到决定书之日起30日内完成整改并提交书面整改报告）",
+            staffPenalty: "<br>朱X（法代、执行董事）：警示函，并记入证券期货市场诚信档案;<br>王X（总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十一条第一款、第十六条第一款、第十七条、第二十五条第一款、第三十三条;<br>《证券期货投资者适当性管理办法》第六条第二项、第三十七条;<br>《私募投资基金监督管理条例》第二十六条第二款、第二十八条第一款、第四十条第二款"
+        },
+        {
+            id: 24,
+            issueDate: "2025年7月21日",
+            documentDate: "2025年7月9日",
+            documentNumber: "〔2025〕45号;〔2025〕46号;〔2025〕47号",
+            regulatoryAgency: "四川监管局",
+            managerName: "成都XXXX股权投资管理有限公司",
+            penaltyReason: "①未严格履行投资者适当性管理义务<br>②未及时填报并定期更新管理人及从业人员有关信息<br>③未建立关联交易和从业人员投资申报、登记、审查、处置等管理制度<br>④与其他公司共用办公场所，反映出公司未认真履行谨慎勤勉义务",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内完成整改并提交书面整改报告）",
+            staffPenalty: "<br>朱X（法代、执行董事）：警示函，并记入证券期货市场诚信档案;<br>王X（总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十一条第一款、第十二条、第十三条第二款、第十六条第一款、第二十五条第一、第三十三条;<br>《证券期货投资者适当性管理办法》第六条第二项、第三十七条;<br>《私募投资基金监督管理条例》第二十六条第二款、第二十八条第一款、第四十条第二款"
+        },
+        {
+            id: 25,
+            issueDate: "2025年7月21日",
+            documentDate: "2025年7月7日",
+            documentNumber: "行政监管措施决定书〔2025〕102号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XX资产管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务，基金推介材料与基金合同约定不一致<br>②向部分风险识别能力和风险承担能力不匹配的投资者推介私募基金<br>③未按基金合同约定向投资者披露可能影响投资者合法权益的重大信息<br>④未留存部分投资者适当性管理相关资料",
+            managerPenalty: "警示函",
+            staffPenalty: "朱X（负责日常经营管理及信披工作）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十七条、第二十四条、第二十六条、第三十三条;<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项"
+        },
+        {
+            id: 26,
+            issueDate: "2025年7月21日",
+            documentDate: "2025年7月7日",
+            documentNumber: "行政监管措施决定书〔2025〕103号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳XX私募股权基金管理有限公司",
+            penaltyReason: "未按规定为私募基金办理基金备案手续",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条第一款、第三十三条"
+        },
+        {
+            id: 27,
+            issueDate: "2025年7月22日",
+            documentDate: "2025年7月4日",
+            documentNumber: "",
+            regulatoryAgency: "湖南监管局",
+            managerName: "湖南XX私募股权基金管理有限公司",
+            penaltyReason: "①催促投资者打款、在冷静期与投资者联系、帮助投资者填写投资者适当性评估文件<br>②未及时将基金重大事项告知投资者并向中基协报告",
+            managerPenalty: "责令改正，并记入中国资本市场诚信信息数据库<br>（收到决定书之日起30日对问题进行整改并提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十五条、第三十三条"
+        },
+        {
+            id: 28,
+            issueDate: "2025年7月25日",
+            documentDate: "2025年5月13日",
+            documentNumber: "中基协处分〔2025〕114号;中基协处分〔2025〕115号;中基协处分〔2025〕116号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX（北京）投资基金管理有限公司",
+            penaltyReason: "①向协会提供不真实的基金备案文件和信息（存在保本保收益行为，法律意见书内容不真实）<br>②未真实、准确、完整、及时地提供检查所需材料（存在伪造投资者签名）",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案十二个月",
+            staffPenalty: "<br>郭XX（合规风控负责人）：公开谴责;<br>左XX（法代）：公开谴责",
+            legalBasis: "《私募投资基金管理人登记和基金备案办法（试行）》第四条;<br>《私募投资基金监督管理暂行办法》第四条;<br>《中国证券投资基金业协会自律检查规则》第二条;<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 29,
+            issueDate: "2025年7月25日",
+            documentDate: "2025年7月16日",
+            documentNumber: "",
+            regulatoryAgency: "重庆监管局",
+            managerName: "重庆市XX股权投资基金管理有限公司",
+            penaltyReason: "①将基金财产用于借贷投资<br>②未按合同约定进行投资",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第八条第一款第一项、第十三条;<br>《私募投资基金监督管理暂行办法》第三十三条"
+        },
+        {
+            id: 30,
+            issueDate: "2025年7月25日",
+            documentDate: "2025年7月16日",
+            documentNumber: "",
+            regulatoryAgency: "重庆监管局",
+            managerName: "重庆XXXX产业股权投资基金管理有限公司",
+            penaltyReason: "①将基金财产用于明股实债投资<br>②将基金财产用于借贷投资",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第八条第一款第一项、第十三条;<br>《私募投资基金监督管理暂行办法》第三十三条"
+        },
+        {
+            id: 31,
+            issueDate: "2025年7月28日",
+            documentDate: "2025年7月25日",
+            documentNumber: "〔2025〕121号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "XX私募基金管理（南京）有限公司",
+            penaltyReason: "合规风控负责人兼任与合规风控职责相冲突的职务，从事投资管理业务，未独立履行相关职能，未能履行私募管理人谨慎勤勉的义务",
+            managerPenalty: "警示函（收到决定30日内提交落实情况说明）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第三十三条"
+        },
+        {
+            id: 32,
+            issueDate: "2025年7月29日",
+            documentDate: "2025年7月24日",
+            documentNumber: "〔2025〕136号;〔2025〕137号;〔2025〕138号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XX资产管理有限公司",
+            penaltyReason: "①未按照基金合同约定的方式向基金份额持有人提供定期报告<br>②在基金净值触发预警线后，未按照基金合同约定向基金份额持有人进行风险揭示",
+            managerPenalty: "责令改正（收到决定之日起30日内提交书面整改报告，监管局将择机对整改落实情况组织检查验收）",
+            staffPenalty: "<br>许XX（合规风控负责人）：警示函;<br>王X（总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理条例》第四十条第二款、第三十一条第一款;<br>《私募投资基金监督管理暂行办法》第二十四条、第三十三条"
+        },
+        {
+            id: 33,
+            issueDate: "2025年7月29日",
+            documentDate: "2025年7月23日",
+            documentNumber: "〔2025〕27号",
+            regulatoryAgency: "山西监管局",
+            managerName: "山西XX基金管理有限公司",
+            penaltyReason: "①控股股东、实控人变更未向中基协报告<br>②未履行诚实信用、谨慎勤勉义务<br>③人员、财务管理不规范，交易决策制度执行不到位<br>④宣传推介、基金评级不规范",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第二十六条、第三十三条"
+        },
+        {
+            id: 34,
+            issueDate: "2025年7月29日",
+            documentDate: "2025年7月25日",
+            documentNumber: "〔2025〕28号",
+            regulatoryAgency: "山西监管局",
+            managerName: "XXXX资产管理有限公司",
+            penaltyReason: "①人员及办公场所欠缺独立性，未实施有效的内部控制<br>②向中基协报送的基金备案信息不真实、不准确<br>③从事与私募基金管理无关的业务<br>④股东出资不实",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 35,
+            issueDate: "2025年7月30日",
+            documentDate: "2025年6月16日",
+            documentNumber: "行政监管措施决定书〔2025〕92号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳市XX资本管理有限公司",
+            penaltyReason: "未独立开展投资决策，未履行谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 36,
+            issueDate: "2025年6月5日",
+            documentDate: "2025年5月30日",
+            documentNumber: "〔2025〕9号",
+            regulatoryAgency: "江西监管局",
+            managerName: "XXXXXX投资管理企业（有限合伙）",
+            penaltyReason: "①投资者风险测评问卷、基金合同等填写不规范<br>②投资者资产证明材料缺失<br>③向非合格投资者募集资金<br>④未按基金合同约定向投资者披露信息",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内完成整改，并提交书面报告，监管局视情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理条例》第三十一条第一款、第四十条第二款<br>《私募投资基金监督管理暂行办法》第四条第一款、第十二条第一款、第二十四条、第二十六条、第三十三条"
+        },
+        {
+            id: 37,
+            issueDate: "2025年6月5日",
+            documentDate: "2025年5月20日",
+            documentNumber: "行政监管措施决定书〔2025〕81号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XX基金管理有限公司",
+            penaltyReason: "从事与私募基金管理无关的业务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第四条、第十三条第一款<br>《私募投资基金监督管理暂行办法》第三十三条"
+        },
+        {
+            id: 38,
+            issueDate: "2025年6月6日",
+            documentDate: "2025年4月19日",
+            documentNumber: "中基协处分〔2025〕89号<br>中基协处分〔2025〕90号<br>中基协处分〔2025〕91号",
+            regulatoryAgency: "中基协",
+            managerName: "XX（厦门）资产管理有限公司",
+            penaltyReason: "①委托不具有基金销售业务资格的机构从事资金募集活动<br>②专业投资者资产证明文件不符合规定<br>③未严格执行投资决策等内部制度（管理人制定了《投资管理制度》规定了投委会职责，但管理人提交的决策文件、说明无法证明投委会充分发挥职责）",
+            managerPenalty: "公开谴责",
+            staffPenalty: "<br>陆XX（合规风控负责人）：公开谴责<br>彭XX（法代）：公开谴责",
+            legalBasis: "《私募投资基金募集行为管理办法》第二条<br>《证券期货投资者适当性管理办法》第八条<br>《私募投资基金管理人内部控制指引》第五条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 39,
+            issueDate: "2025年6月6日",
+            documentDate: "2025年3月28日",
+            documentNumber: "中基协处分〔2025〕85号<br>中基协处分〔2025〕86号<br>中基协处分〔2025〕87号<br>中基协处分〔2025〕88号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①未履行诚实信用、谨慎勤勉义务（未向投资者披露管理人与其他主体存在代持协议；存在无关系外观的个人向所管理的合伙企业募集账户转入款项）<br>②未按规定进行信息报送（注册地、法代、实控人工商变更后，均未进行重大事项变更；私募基金投资者信息模块某投资者显示已退出，但管理人未及时办理退伙；募集户已向某投资者退款，私募基金投资者信息模块与信披备份系统中未及时更新；某合伙企业合伙人变更后，管理人未及时在AMBERS进行更新；部分基金未及时报送需定期报送的数据）<br>③未按规定妥善保管材料（投资者赎回份额的银行转账记录；基金财产对外转账记录与投资协议）",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>戴X（时任法代）：公开谴责<br>胡X（时任合规风控负责人）：公开谴责<br>杨XX（时任法代、总经理）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金管理人登记和基金备案办法（试行）》第二十条、第二十一条<br>《私募投资基金登记备案办法》第四十七条<br>《私募投资基金管理人内部控制指引》第二十六条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 40,
+            issueDate: "2025年6月6日",
+            documentDate: "2025年5月29日",
+            documentNumber: "〔2025〕36号<br>〔2025〕37号",
+            regulatoryAgency: "四川监管局",
+            managerName: "四川XXXX股权投资基金管理有限公司",
+            penaltyReason: "①部分基金产品未按照规定办理备案手续<br>②从事与私募基金管理无关的业务<br>③未建立从业人员投资申报、登记、审查、处置等管理制度<br>④未按照规定程序收集部分投资者的资产证明，未认真履行谨慎勤勉义务",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案（收到决定书之日起30日内完成整改并提交书面整改报告）",
+            staffPenalty: "曾XX（法代、执行董事、总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理条例》第三条第三款第四款、第二十六条第二款、第四十条第二款<br>《私募投资基金监督管理暂行办法》第四条第二款、第八条第一款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第四条、第十三条第一款"
+        },
+        {
+            id: 41,
+            issueDate: "2025年6月9日",
+            documentDate: "2025年6月9日",
+            documentNumber: "〔2025〕75号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "XX无锡私募基金管理有限公司",
+            penaltyReason: "（举报事项核查中发现）<br>管理人在管理某有限合伙企业期间，存在管理未备案基金",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条规定、第三十三条"
+        },
+        {
+            id: 42,
+            issueDate: "2025年6月10日",
+            documentDate: "2025年6月10日",
+            documentNumber: "沪证监决〔2025〕116号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX资产管理有限公司",
+            penaltyReason: "开展私募基金业务活动中，未切实履行主动管理职责，未尽谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 43,
+            issueDate: "2025年6月10日",
+            documentDate: "2025年6月5日",
+            documentNumber: "行政监管措施决定书〔2025〕37号",
+            regulatoryAgency: "山东监管局",
+            managerName: "山东XX私募基金管理有限公司",
+            penaltyReason: "通过员工跟投及基金份额代持的形式为不合格投资者提供满足合格投资者要求的便利",
+            managerPenalty: "",
+            staffPenalty: "姚XX（从业人员）：警示函，并将相关情况记入证券期货市场诚信档案数据库",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条第一款第一项<br>《私募投资基金监督管理暂行办法》第四条第二款、第三十三条"
+        },
+        {
+            id: 44,
+            issueDate: "2025年6月11日",
+            documentDate: "2025年6月10日",
+            documentNumber: "行政监管措施决定书〔2025〕45号<br>行政监管措施决定书〔2025〕46号",
+            regulatoryAgency: "山东监管局",
+            managerName: "XX资本管理有限公司",
+            penaltyReason: "⑴以虚假、片面、夸大等方式进行宣传推介<br>⑵向投资者承诺保本保收益<br>⑶委托不具有基金销售业务资格的单位和个人从事私募基金募集活动<br>⑷未严格履行风险揭示程序<br>⑸未审慎核验投资者出具的收入证明文件的真实性<br>⑹未与部分投资者签订私募基金合同<br>⑺挪用私募基金财产，开展资金池业务<br>⑻未完整妥善保管私募基金投资者适当性管理资料以及私募基金投资交易记录、基金投资运作、决策过程性与交易性指令性文件<br>⑼未按要求向投资者进行信息披露<br>⑽未在中基协及时填报并定期更新管理人从业人员的有关信息<br>⑾向监管局报送材料存在虚假记载",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "李XX（法代、董事长）：警示函",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条、第九条、第十二条<br>《私募投资基金监督管理暂行办法》第四条、第十五条、第十六条、第二十条、第二十三条、第二十四条、第二十五条、第二十六条、第三十三条<br>《私募投资基金监督管理条例》第三条、第十九条、第二十条、第三十条、第三十一条、第三十二条"
+        },
+        {
+            id: 45,
+            issueDate: "2025年6月12日",
+            documentDate: "2025年6月9日",
+            documentNumber: "〔2025〕114号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XX投资管理中心（有限合伙）",
+            penaltyReason: "管理、运用私募基金财产，未能恪尽职守地履行诚实信用、谨慎勤勉的义务",
+            managerPenalty: "警示函（收到决定书之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 46,
+            issueDate: "2025年6月12日",
+            documentDate: "2025年6月9日",
+            documentNumber: "〔2025〕76号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "南京XX投资管理有限公司",
+            penaltyReason: "未按合同约定向投资者披露信息",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第三十三条"
+        },
+        {
+            id: 47,
+            issueDate: "2025年6月12日",
+            documentDate: "2025年6月12日",
+            documentNumber: "沪证监决【2025】122号",
+            regulatoryAgency: "上海监管局",
+            managerName: "XX投资管理（上海）有限公司",
+            penaltyReason: "将所管理基金的部分投资管理权限让渡给他人，未履行诚实信用、谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 48,
+            issueDate: "2025年6月13日",
+            documentDate: "2025年6月11日",
+            documentNumber: "〔2025〕16号",
+            regulatoryAgency: "海南监管局",
+            managerName: "海南XX私募证券基金管理有限公司",
+            penaltyReason: "①所管理的基金存在互投情况，但管理人未健全关联交易管理制度，未规范关联交易审批程序<br>②向合格投资者之外的个人募集资金",
+            managerPenalty: "责令改正，并记入资本市场诚信档案数据库",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条第一款第一项、第十一条、第十三条第一款<br>《私募投资基金监督管理暂行办法》第十二条第一款、第十四条、第三十三条"
+        },
+        {
+            id: 49,
+            issueDate: "2025年6月13日",
+            documentDate: "2025年4月29日",
+            documentNumber: "中基协处分〔2025〕92号<br>中基协处分〔2025〕93号<br>中基协处分〔2025〕94号",
+            regulatoryAgency: "中基协",
+            managerName: "山东XX私募基金管理有限公司",
+            penaltyReason: "诱导投资者进行适当性风险测评",
+            managerPenalty: "公开谴责",
+            staffPenalty: "<br>陈XX（时任综合专员）：公开谴责<br>王XX（法代、总经理、执行董事）：公开谴责",
+            legalBasis: "《基金募集机构投资者适当性管理实施指引（试行）》第二十七条第二项<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 50,
+            issueDate: "2025年6月16日",
+            documentDate: "2025年6月6日",
+            documentNumber: "",
+            regulatoryAgency: "浙江监管局",
+            managerName: "杭州XX资产管理有限公司",
+            penaltyReason: "①管理的部分基金投资范围不符合基金合同约定<br>②向托管人提供非实际履行的投资协议",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面整改报告）",
+            staffPenalty: "王X（时任总经理）：警示函，并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面报告）",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第九条第一款第八项、第十三条、第十四条第三款第三项<br>《私募投资基金监督管理暂行办法》第四条第一款第二款、第二十三条第九项、第三十三条"
+        },
+        {
+            id: 51,
+            issueDate: "2025年6月16日",
+            documentDate: "2025年6月16日",
+            documentNumber: "沪证监决〔2025〕125号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX投资控股有限公司",
+            penaltyReason: "代持自然人投资者基金份额，未履行诚实信用、谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "程XX（法代、执行董事、总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款第二款、第三十三条"
+        },
+        {
+            id: 52,
+            issueDate: "2025年6月18日",
+            documentDate: "2025年3月18日",
+            documentNumber: "行政监管措施决定书〔2025〕37号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳XX私募股权投资基金管理有限公司",
+            penaltyReason: "①部分产品尚未完成工商变更及未在中基协变更管理人，个别产品未在中基协完成变更管理人的情况下便实际履行管理人职责，未独立开展投资决策，未履行谨慎勤勉义务<br>②未按合同约定向投资者进行信息披露",
+            managerPenalty: "警示函",
+            staffPenalty: "王X（从业人员-负责信披、经营管理、投资运作等）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十四条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第（八）项"
+        },
+        {
+            id: 53,
+            issueDate: "2025年6月19日",
+            documentDate: "2025年6月17日",
+            documentNumber: "〔2025〕120号",
+            regulatoryAgency: "北京监管局",
+            managerName: "XXXX创业投资管理有限公司",
+            penaltyReason: "①管理的私募基金募集完毕后未根据基金业协会的规定办理基金备案手续<br>②未对私募基金进行风险评级<br>③私募基金未由基金托管人托管，且未对相关事项另行约定<br>④利用基金财产或者职务之便，为本公司牟取利益",
+            managerPenalty: "警示函（收到决定书之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条、第十七条、第二十一条、第二十三条、第三十三条"
+        },
+        {
+            id: 54,
+            issueDate: "2025年6月19日",
+            documentDate: "2025年6月17日",
+            documentNumber: "〔2025〕79号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "XXXX（南京）私募基金管理有限公司",
+            penaltyReason: "①未按照合同约定向投资者信息披露<br>②未妥善保存投资者适当性管理等材料",
+            managerPenalty: "警示函（收到决定书30日内提交落实情况说明）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第二十六条、第三十三条"
+        },
+        {
+            id: 55,
+            issueDate: "2025年6月20日",
+            documentDate: "2025年5月22日",
+            documentNumber: "行政监管措施决定书〔2025〕83号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳市前海XX投资管理有限公司",
+            penaltyReason: "①募集完毕后未办理基金备案手续<br>②未妥善留存私募基金投资者适当性管理材料",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条第一款、第二十六条、第三十三条"
+        },
+        {
+            id: 56,
+            issueDate: "2025年6月20日",
+            documentDate: "2025年4月29日",
+            documentNumber: "中基协处分〔2025〕100号<br>中基协处分〔2025〕101号<br>中基协处分〔2025〕102号<br>中基协处分〔2025〕103号",
+            regulatoryAgency: "中基协",
+            managerName: "杭州XX资产管理有限公司",
+            penaltyReason: "中基协<br>未实施有效的内部控制（杨伟杰员工代持投资者份额，合计1145万元）<br><br>监管部门<br>①通过员工代持形式向不合格投资者募集资金<br>②未及时填报并定期更新管理人及其从业人员的有关信息、所管理私募基金的有关情况<br>③基金投资经理未履行职责<br>④公司高级管理人员在有利益冲突的机构兼职<br>⑤不配合监督检查、调查",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>韦X（法代、总经理）：公开谴责<br>杜X（合规风控负责人）：公开谴责<br>杨XX（基金从业人员）：加入黑名单，期限五年",
+            legalBasis: "《私募投资基金管理人内部控制指引》第六条、第七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 57,
+            issueDate: "2025年6月23日",
+            documentDate: "2025年6月23日",
+            documentNumber: "陕证监措施字〔2025〕18号",
+            regulatoryAgency: "陕西监管局",
+            managerName: "陕西XXXX私募基金管理有限公司",
+            penaltyReason: "①从事通道业务，未勤勉尽责履行管理人职责<br>②部分基金投资管理不规范<br>③未及时履行管理人信息变更手续",
+            managerPenalty: "警示函",
+            staffPenalty: "<br>樊X（董事长、总经理）：警示函<br>薛XX（合规风控负责人）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 58,
+            issueDate: "2025年6月25日",
+            documentDate: "2025年5月26日",
+            documentNumber: "行政监管措施决定书〔2025〕85号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XX资产管理有限公司",
+            penaltyReason: "①未确认投资者是否知悉信息披露查询账号，未履行谨慎勤勉义务<br>②未按基金合同约定向投资者披露可能影响投资者权益的重大信息<br>③未妥善保存部分投资者适当性管理相关资料",
+            managerPenalty: "警示函",
+            staffPenalty: "<br>黄XX（从业人员-负责日常经营管理、信披、投资运作等）：警示函<br>成XX（从业人员-负责日常经营管理、信披、投资运作等）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十四条、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第（八）项"
+        },
+        {
+            id: 59,
+            issueDate: "2025年6月26日",
+            documentDate: "2025年6月25日",
+            documentNumber: "〔2025〕121号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX股权投资基金管理有限公司",
+            penaltyReason: "①向合格投资者之外的个人募集资金<br>②向投资者承诺收益<br>③委托不具有基金销售业务资格的单位或个人从事资金募集活动",
+            managerPenalty: "警示函（收到决定书之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十四条、第十五条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第（八）项、第十三条"
+        },
+        {
+            id: 60,
+            issueDate: "2025年6月27日",
+            documentDate: "2025年5月26日",
+            documentNumber: "行政监管措施决定书〔2025〕84号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XX投资基金管理有限公司",
+            penaltyReason: "①未独立开展投资决策，未履行谨慎勤勉义务<br>②基金募集完成后未在中基协办理备案手续<br>③未妥善保存部分投资者适当性管理材料",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第八条第一款、第二十六条、第三十三条"
+        },
+        {
+            id: 61,
+            issueDate: "2025年6月27日",
+            documentDate: "2025年5月29日",
+            documentNumber: "行政监管措施决定书〔2025〕87号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "XXXX（深圳）资产管理有限公司",
+            penaltyReason: "未独立开展投资决策，未履行谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 62,
+            issueDate: "2025年6月27日",
+            documentDate: "2025年5月6日",
+            documentNumber: "中基协处分〔2025〕104号<br>中基协处分〔2025〕105号<br>中基协处分〔2025〕106号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XX资本投资管理有限公司",
+            penaltyReason: "①未规范履行投资者适当性管理义务（部分投资者风险匹配告知书及投资者确认函、风险揭示书签署日期晚于合同签署日期（管理人称是行政写错日期）<br>②未妥善保存基金相关材料（某基金资产未妥善保存某投资者证明材料；未妥善保存使用即时通讯向部分投资者信披的材料）<br>③内部控制不完善（非投委会成员在个别决议中签字）",
+            managerPenalty: "警告",
+            staffPenalty: "<br>沈XX（法代）：警告<br>吴XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金募集行为管理办法》第六条、第十一条<br>《私募投资基金信息披露管理办法》第二十一条<br>《私募投资基金管理人内部控制指引》第六条、第十五条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 63,
+            issueDate: "2025年5月6日",
+            documentDate: "2025年5月6日",
+            documentNumber: "沪证监决〔2025〕96号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "书面形式向投资者承诺保本保收益",
+            managerPenalty: "",
+            staffPenalty: "徐X（法代）：警示函",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条第一款第三项<br>《私募投资基金监督管理暂行办法》第二十三条第九项、第三十三条"
+        },
+        {
+            id: 64,
+            issueDate: "2025年5月7日",
+            documentDate: "2025年4月27日",
+            documentNumber: "〔2025〕49号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广东XXXX私募基金管理有限公司",
+            penaltyReason: "①为私募基金产品投资者承诺保本保收益<br>②从事与私募基金管理无关业务",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十五条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第四条、第六条第一款第三项、第十三条第一款"
+        },
+        {
+            id: 65,
+            issueDate: "2025年5月8日",
+            documentDate: "2025年5月8日",
+            documentNumber: "行政监管措施决定书〔2025〕26号<br>行政监管措施决定书〔2025〕27号",
+            regulatoryAgency: "山东监管局",
+            managerName: "XX（济南）私募基金管理有限公司",
+            penaltyReason: "①存在与其他公司共用办公场所、由非公司员工办理私募基金募集等具体私募事务<br>②未对明显存疑的投资者适当性材料进行审慎核实等行为",
+            managerPenalty: "责令改正（收到决定书之日起30日内整改完毕，并提交书面整改报告）",
+            staffPenalty: "周XX（法代、执行董事兼总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条<br>《证券期货投资者适当性管理办法》第三条、第三十七条"
+        },
+        {
+            id: 66,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年4月30日",
+            documentNumber: "〔2025〕70号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX投资管理中心（有限合伙）",
+            penaltyReason: "①未按照规定穿透核查最终投资者是否为合格投资者<br>②未按照合伙协议的约定时限向投资者披露相关信息",
+            managerPenalty: "责令改正（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十三条第二款、第二十四条、第三十三条"
+        },
+        {
+            id: 67,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年5月8日",
+            documentNumber: "〔2025〕74号",
+            regulatoryAgency: "北京监管局",
+            managerName: "XXXX投资基金管理（北京）有限公司",
+            penaltyReason: "①未能恪尽职守地履行诚实信用、谨慎勤勉的义务<br>②未采取问卷调查等方式对投资者的风险识别能力和风险承担能力进行评估",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十六条、第三十三条"
+        },
+        {
+            id: 68,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年4月29日",
+            documentNumber: "中基协复核〔2025〕19号<br>原决定书<br>中基协处分〔2024〕566号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "曾“挂名”登记为管理人法定代表人",
+            managerPenalty: "",
+            staffPenalty: "陆X（法代）：警告（复核维持）",
+            legalBasis: "《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第二条<br>《私募投资基金管理人登记和基金备案办法（试行）》第四条"
+        },
+        {
+            id: 69,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年4月21日",
+            documentNumber: "中基协复核〔2025〕20号<br>原决定书<br>中基协处分〔2025〕24号",
+            regulatoryAgency: "中基协",
+            managerName: "青岛XX资产管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务（通道业务、交易风控不健全）<br>②未按照合同约定及时向投资者披露信息（变更投资策略后未及时向投资者披露）",
+            managerPenalty: "",
+            staffPenalty: "辛X（时任法代）：公开谴责(复核维持）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金管理人内部控制指引》第十五条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 70,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年2月21日",
+            documentNumber: "中基协处分〔2025〕60号<br>中基协处分〔2025〕61号<br>中基协处分〔2025〕62号<br>中基协处分〔2025〕63号",
+            regulatoryAgency: "中基协",
+            managerName: "珠海XX私募股权基金管理有限公司",
+            penaltyReason: "①委托不具有基金销售业务资格的机构募集资金<br>②未建立实施有效的内部控制（内控制度约定了产品投决会的组成成员，但在实际投决会中有人员并未实际出席）<br>③未尽谨慎勤勉义务（1.向其他机构让渡股份管理职责；2.未充分履行信披义务；3.某产品投资者风测文件缺公章、经办人签字和日期等内容）",
+            managerPenalty: "取消会员资格，暂停受理其私募基金产品备案十二个月",
+            staffPenalty: "<br>陈XX（执行董事、法代、总经理）：公开谴责<br>吕X（合规风控负责人）：公开谴责<br>王XX（时任合规风控负责人）：公开谴责",
+            legalBasis: "管理人《投资决策委员会议事规则》第四条<br>《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金管理人内部控制指引》第十五条、第十七条<br>《私募投资基金募集行为管理办法》第二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 71,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年2月21日",
+            documentNumber: "中基协处分〔2025〕64号<br>中基协处分〔2025〕65号<br>中基协处分〔2025〕66号",
+            regulatoryAgency: "中基协",
+            managerName: "XX资本管理有限公司",
+            penaltyReason: "①侵占、挪用基金财产<br>②未及时按规定进行信息报送（管理人某私募基金工商名称变更后未及时在协会平台上进行变更）<br>③未向协会报告重大事项（2022年工商法代变更、股东变更后未向协会平台提交重大事项变更申请）",
+            managerPenalty: "取消会员资格，对管理人进行公开谴责",
+            staffPenalty: "<br>袁X（时任法代）：公开谴责（①②）<br>付XX（时任合规风控负责人）：公开谴责（①②③）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条<br>《私募投资基金管理人内部控制指引》第九条<br>《私募投资基金管理人登记和基金备案办法（试行）》第二十条、第二十二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 72,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年3月3日",
+            documentNumber: "中基协处分〔2025〕67号<br>中基协处分〔2025〕68号<br>中基协处分〔2025〕69号",
+            regulatoryAgency: "中基协",
+            managerName: "深圳前海XX资本管理有限公司",
+            penaltyReason: "①未适当履行信息披露义务（相关季报、年报文件缺失）<br>②专职员工人数不符合要求（未给签订劳动合同的员工缴纳社保）<br>③未履行合格投资者确认程序（部分投资者适当性材料缺失）",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案六个月",
+            staffPenalty: "<br>毕XX（法代）：公开谴责<br>陈XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十六条、第二十四条<br>《私募投资基金信息披露管理办法》第十六条、第十七条<br>《私募投资基金登记备案办法》第八条第（四）款<br>《私募基金管理人登记指引第1号—基本经营要求》第九条<br>《私募投资基金募集行为管理办法》第十八条、第二十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 73,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年4月14日",
+            documentNumber: "行政监管措施决定书〔2025〕54号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳XX投资管理有限公司",
+            penaltyReason: "未独立开展投资决策，未履行谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 74,
+            issueDate: "2025年5月9日",
+            documentDate: "2025年5月9日",
+            documentNumber: "沪证监决〔2025〕100号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "管理、运用私募基金财产过程中，未履行诚实守信、谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "曾XX（私募基金从业人员）：警示函",
+            legalBasis: "《私募投资基金监督管理条例》第三条第三款第四款、第四十条第二款"
+        },
+        {
+            id: 75,
+            issueDate: "2025年5月13日",
+            documentDate: "2025年5月12日",
+            documentNumber: "",
+            regulatoryAgency: "浙江监管局",
+            managerName: "XX私募基金（杭州）有限公司",
+            penaltyReason: "非法汇集他人资金购买私募投资基金产品",
+            managerPenalty: "",
+            staffPenalty: "胡X（时任基金经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十九条、第三十三条"
+        },
+        {
+            id: 76,
+            issueDate: "2025年5月16日",
+            documentDate: "2025年4月21日",
+            documentNumber: "行政监管措施决定书〔2025〕64号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳XXX股权投资基金管理有限公司",
+            penaltyReason: "未对部分投资者的风险识别能力和风险承担能力进行评估、未妥善留存部分私募基金投资者适当性管理材料的情形",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十六条第一款、第二十六条、第三十三条"
+        },
+        {
+            id: 77,
+            issueDate: "2025年5月20日",
+            documentDate: "2025年5月17日",
+            documentNumber: "〔2025〕59号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广州XXXX股权投资基金管理有限公司",
+            penaltyReason: "①尽职调查、投资决策等方面未恪尽职守，未履行诚实信用、谨慎勤勉的义务<br>②未按规定向投资者进行信息披露",
+            managerPenalty: "警示函（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第三十三条"
+        },
+        {
+            id: 78,
+            issueDate: "2025年5月23日",
+            documentDate: "2025年5月15日",
+            documentNumber: "",
+            regulatoryAgency: "重庆监管局",
+            managerName: "重庆XX股权投资基金管理有限公司",
+            penaltyReason: "①将基金财产用于借贷<br>②管理无备案基金",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第八条第一款第一项、第十三条<br>《私募投资基金监督管理暂行办法》第八条、第三十三条"
+        },
+        {
+            id: 79,
+            issueDate: "2025年5月23日",
+            documentDate: "2025年3月10日",
+            documentNumber: "中基协处分〔2025〕70号<br>中基协处分〔2025〕71号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XX创业投资有限公司",
+            penaltyReason: "①高级管理人员登记信息与实际不符（显名合规风控负责人未实际任职）<br>②未真实提交检查所需材料（提交虚假风控履职信息）<br>③专职人员数量不符合要求（部分显名员工未缴纳社保）",
+            managerPenalty: "取消会员资格、撤销管理人登记",
+            staffPenalty: "刘XX（法代）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十五条<br>《私募投资基金登记备案办法》第四条、第八条、第六十五条<br>《中国证券投资基金业协会自律检查规则》第二条<br>《私募基金管理人登记指引第1号》第九条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 80,
+            issueDate: "2025年5月23日",
+            documentDate: "2025年5月14日",
+            documentNumber: "行政监管措施决定书〔2025〕78号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳市XXX资产管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务<br>②未对部分投资者的风险识别能力和风险承担能力进行评估<br>③未对部分私募基金进行风险评级<br>④未如实向投资者披露可能影响投资者合法权益的重大信息<br>⑤未留存部分投资者适当性管理材料",
+            managerPenalty: "警示函",
+            staffPenalty: "周XX（负责日常经营管理、信披等工作）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十六条第一款、第十七条、第二十四条、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第（八）项"
+        },
+        {
+            id: 81,
+            issueDate: "2025年5月23日",
+            documentDate: "2025年5月19日",
+            documentNumber: "中基协处分〔2025〕120号<br>中基协处分〔2025〕121号<br>中基协处分〔2025〕122号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX私募基金管理（海南）有限公司",
+            penaltyReason: "①虚假登记（合规风控负责人为挂名，约定服务费为3000元/月）<br>②保本保收益<br>③代持基金份额<br>④未穿透核查相关投资者是否为合格投资人<br>⑤未及时披露相关可能存在利益冲突及影响投资者合法权益的其他重大信息",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案二十四个月",
+            staffPenalty: "<br>张XX（法代）：公开谴责<br>郑XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募基金管理人登记须知》第一条第一款第七款<br>《私募投资基金募集行为管理办法》第二十四条第三款<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第二十二条、第四十条"
+        },
+        {
+            id: 82,
+            issueDate: "2025年5月23日",
+            documentDate: "2025年5月23日",
+            documentNumber: "〔2025〕71号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "江苏XX投资管理有限公司",
+            penaltyReason: "①未按合同约定向投资者披露信息<br>②未及时在中国证券投资基金业协会信息报送平台上填报更新管理人有关信息",
+            managerPenalty: "责令改正（收到决定书30日内提交书面报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 83,
+            issueDate: "2025年5月26日",
+            documentDate: "2025年5月13日",
+            documentNumber: "中基协复核〔2025〕21号<br>原决定书<br>中基协处分〔2025〕53号-未公示",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX投资管理（天津）有限公司",
+            penaltyReason: "存在部分基金产品未备案并持续管理未备案产品",
+            managerPenalty: "",
+            staffPenalty: "张X（时任合规风控负责人）：警告（复核维持）",
+            legalBasis: "《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 84,
+            issueDate: "2025年5月26日",
+            documentDate: "2025年5月26日",
+            documentNumber: "〔2025〕13号<br>〔2025〕14号",
+            regulatoryAgency: "海南监管局",
+            managerName: "海南XX私募基金管理有限公司",
+            penaltyReason: "①未及时报告重大事项，未按规定履行信息报送义务<br>②未按规定穿透核查基金份额转让后受让的最终投资者是否为合格投资者，且受让后的最终投资者不符合合格投资者要求<br>③缺乏开展私募投资基金业务必要的经营场所、从业人员等条件",
+            managerPenalty: "责令改正，并记入资本市场诚信档案数据库",
+            staffPenalty: "梁X（法代、董事长）：警示函，并记入资本市场诚信档案数据库",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十一条第二款、第十二条第一款、第十三条第二款、第二十五条第一款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第七条第一款、第十二条第一款、第十三条第一款"
+        },
+        {
+            id: 85,
+            issueDate: "2025年5月30日",
+            documentDate: "2025年3月12日",
+            documentNumber: "中基协处分〔2025〕72号<br>中基协处分〔2025〕73号<br>中基协处分〔2025〕74号<br>中基协处分〔2025〕75号<br>中基协处分〔2025〕76号",
+            regulatoryAgency: "中基协",
+            managerName: "山东XX私募基金管理有限公司",
+            penaltyReason: "①向非合格投资者募集资金<br>②从事与私募基金无关或存在利益冲突业务<br>③未规范使用募集结算资金账户<br>④未及时报送产品备案",
+            managerPenalty: "暂停受理私募基金产品备案十二个月",
+            staffPenalty: "<br>李X（法代）：公开谴责<br>燕X（时任法代）：警告<br>姜XX（合规风控负责人）：警告<br>刘XX（时任合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十一条<br>《私募投资基金备案须知》第一条第七项、第四条第三项<br>《私募投资基金管理人内部控制指引》第八条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 86,
+            issueDate: "2025年5月30日",
+            documentDate: "2025年3月24日",
+            documentNumber: "中基协处分〔2025〕82号<br>中基协处分〔2025〕83号<br>中基协处分〔2025〕84号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①委托不具有基金销售业务资格的单位募集资金<br>②未履行谨慎勤勉义务<br>③非专业化运营（与某发债公司签订协议助其寻找投资机构提供发行、购买服务并收取资金占用费与发行服务费；存在与某公司保证金及转售服务费等资金往来，涉及为其他公司“平滑”债权价格、协助公司寻找投资者转售，提供交易支持）<br>④未真实、准确、完整提供检查所需材料（合规风控负责人检查期间正常缴纳社保并自称为合规风控负责人，而后续却以“强制离职”方式注销了从业资格并确认离职日期为其向监管称为合规风控负责人之前，存在公司与许冬晓配合进行了虚假陈述）",
+            managerPenalty: "暂停受理私募基金产品备案十二个月",
+            staffPenalty: "<br>王X（法代、总经理）：公开谴责<br>许XX（时任合规风控负责人）：公开谴责",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条第一款第八项<br>《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第九项<br>《私募投资基金管理人内部控制指引》第八条<br>《中国证券投资基金业协会自律检查规则》第二条"
+        },
+        {
+            id: 87,
+            issueDate: "2025年5月30日",
+            documentDate: "2025年5月28日",
+            documentNumber: "〔2025〕62号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广州市XX创业投资管理有限公司",
+            penaltyReason: "①未按规定向投资者进行信息披露<br>②未按规定及时填报并定期更新管理人有关信息<br>③未获取部分投资者资产证明文件<br>④划分产品风险等级时未综合考虑募集方式、同类产品过往业绩等因素",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第二十五条第一款、第三十三条<br>《证券期货投资者适当性管理办法》第六条第二项、第十六条第一款、第三十七条"
+        },
+        {
+            id: 88,
+            issueDate: "2025年5月30日",
+            documentDate: "2025年5月30日",
+            documentNumber: "〔2025〕103号",
+            regulatoryAgency: "北京监管局",
+            managerName: "XXXX私募基金管理（北京）有限公司",
+            penaltyReason: "未按照合同约定向投资者进行信息披露",
+            managerPenalty: "责令改正（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第三十三条"
+        },
+        {
+            id: 89,
+            issueDate: "2025年4月9日",
+            documentDate: "2025年2月24日;2025年4月7日",
+            documentNumber: "监管措施〔2025〕3号 3.5<br>监管措施〔2025〕13号 4.9",
+            regulatoryAgency: "黑龙江监管局",
+            managerName: "哈尔滨市XX投资管理有限责任公司",
+            penaltyReason: "①未及时更新法定代表人信息<br>②公司专职人员仅3人",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告） 3.5",
+            staffPenalty: "裴X（法代）：警示函 4.9",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款第二款、第二十五条第一款、第三十三条<br>《私募投资基金登记备案办法》第八条"
+        },
+        {
+            id: 90,
+            issueDate: "2025年4月2日",
+            documentDate: "2025年3月28日",
+            documentNumber: "津证监措施〔2025〕020号",
+            regulatoryAgency: "天津监管局",
+            managerName: "XX（天津）股权投资基金管理有限公司",
+            penaltyReason: "2024年8月5日，因有履行能力而拒不履行生效法律文书确定义务，管理人董事长、合规风控负责人不符合任职资格，经督促，管理人未在规定期限内整改并更换适当人选",
+            managerPenalty: "责令管理人在收到决定书30个工作日内，免除董事长、合规风控负责人的决定，选举出新的相应人选，并在作出更换决定之日起3个工作日内提交书面报告",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理条例》第九条、第四十二条第一款第二项"
+        },
+        {
+            id: 91,
+            issueDate: "2025年4月2日",
+            documentDate: "2025年3月20日",
+            documentNumber: "〔2025〕29号 <br>〔2025〕30号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广东XX私募证券投资基金管理有限公司",
+            penaltyReason: "①从事与私募基金无关的业务<br>②未按照规定制定合理的私募基金风险评级制度对私募基金进行风险等级划分<br>③未妥善保存私募基金投资决策资料",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "陈X（法代、总经理），存在拒绝配合监督检查、调查行为：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第九项、第二十六条、第三十三条<br>《证券期货投资者适当性管理办法》第十六条第一款、第三十七条<br>《私募投资基金监督管理条例》第四十一条第二款、第四十二条第二款<br>《关于加强私募投资基金监管的若干规定》第四条"
+        },
+        {
+            id: 92,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年3月19日",
+            documentNumber: "监管措施〔2025〕12号",
+            regulatoryAgency: "黑龙江监管局",
+            managerName: "黑河XX产业引导基金管理有限责任公司",
+            penaltyReason: "将私募基金财产用于借贷投资活动",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第三十三条<br>《关于加强私募投资基金监管的若干规定》第八条第一款第一项、第十三条"
+        },
+        {
+            id: 93,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年2月14日",
+            documentNumber: "中基协复核〔2025〕13号<br>原决定书<br>中基协处分〔2024〕34号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX投资管理（天津）有限公司",
+            penaltyReason: "①存在部分基金产品未备案并持续管理未备案产品<br>②未及时更新登记信息<br>③向非合格投资者募集资金",
+            managerPenalty: "",
+            staffPenalty: "张XX（合规风控负责人）：公开谴责（复核处分变更为“警告”）",
+            legalBasis: "《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 94,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年2月21日",
+            documentNumber: "中基协复核〔2025〕14号<br>中基协复核〔2025〕15号<br>中基协复核〔2025〕16号<br>原决定书<br>中基协处分〔2024〕553号<br>中基协处分〔2024〕554号<br>中基协处分〔2024〕555号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX私募基金管理（湖北）有限公司",
+            penaltyReason: "①向非合格投资者募集资金且人数超过法定上限<br>②向投资者承诺投资本金不受损失或者承诺最低收益<br>③未采取问卷调查等方式，对投资者的风险识别能力和风险承担能力进行评估<br>④利用基金财产或者职务之便，为本人或者投资者以外的人牟取利益，进行利益输送",
+            managerPenalty: "撤销管理人登记（复核维持）",
+            staffPenalty: "<br>马XX（合规风控负责人）：取消基金从业资格（复核维持）<br>牟X（法代、总经理）：取消基金从业资格（复核维持）",
+            legalBasis: "《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 95,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年1月12日",
+            documentNumber: "中基协处分〔2025〕10号<br>中基协处分〔2025〕11号<br>中基协处分〔2025〕12号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX创业投资有限公司",
+            penaltyReason: "①提交不真实、不准确信息（登记为管理人前从事了居间服务等业务并收取服务费，但在《法律意见书》中否认从事“利用自有资金进行股权投资”以外的业务）<br>②未适当履行信息披露义务（未披露基金存在利益冲突的事项）",
+            managerPenalty: "警告",
+            staffPenalty: "<br>费XX（法定代表人）：警告<br>钟X（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金管理人登记和基金备案办法（试行）》第四条<br>《私募投资基金信息披露管理办法》第九条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 96,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年1月12日",
+            documentNumber: "中基协处分〔2025〕7号<br>中基协处分〔2025〕8号<br>中基协处分〔2025〕9号",
+            regulatoryAgency: "中基协",
+            managerName: "青岛XX资产管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务（将产品账号密码交由非员工操作）<br>②未妥善保存投资者适当性管理方面的记录（某客户的资产或收入证明未妥善保存）",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>白XX（合规风控负责人）：公开谴责<br>王XX（法定代表人）：取消基金从业资格",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金管理人内部控制指引》第十五条<br>《私募投资基金募集行为管理办法》第十一条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 97,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年1月12日",
+            documentNumber: "中基协处分〔2025〕14号<br>中基协处分〔2025〕15号<br>中基协处分〔2025〕16号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资有限公司",
+            penaltyReason: "①未尽谨慎勤勉义务（关联交易）<br>②未有效执行内部控制制度（未按照公司投委会制度执行）",
+            managerPenalty: "警告",
+            staffPenalty: "<br>林XX（法定代表人）：警告<br>王XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金管理人内部控制指引》第二十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 98,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年4月2日",
+            documentNumber: "〔2025〕54号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京市XXXX创业投资管理有限公司",
+            penaltyReason: "①管理、运用私募基金财产，未能恪尽职守地履行诚实信用、谨慎勤勉的义务<br>②未按照合同约定向投资者进行信息披露",
+            managerPenalty: "责令改正（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第三十三条"
+        },
+        {
+            id: 99,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年4月2日",
+            documentNumber: "〔2025〕55号",
+            regulatoryAgency: "北京监管局",
+            managerName: "XXX资产管理集团股份有限公司",
+            penaltyReason: "未按照合同约定向投资者进行信息披露",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第三十三条"
+        },
+        {
+            id: 100,
+            issueDate: "2025年4月3日",
+            documentDate: "2025年3月27日",
+            documentNumber: "〔2025〕48号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "苏州XXX资产管理有限公司",
+            penaltyReason: "未妥善保存部分私募基金产品投资决策及投资者适当性管理等方面的记录及其他相关资料",
+            managerPenalty: "责令改正（收到决定书30日内提交书面报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十六条、第三十三条"
+        },
+        {
+            id: 101,
+            issueDate: "2025年4月7日",
+            documentDate: "2025年4月7日",
+            documentNumber: "沪证监决〔2025〕69号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XXXX资产管理有限公司",
+            penaltyReason: "①未按规定在中基协办理基金备案手续<br>②向非合格投资者募集资金",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条第一款、第十一条第一款、第十二条第一款、第三十三条"
+        },
+        {
+            id: 102,
+            issueDate: "2025年4月7日",
+            documentDate: "2025年4月7日",
+            documentNumber: "〔2025〕51号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "南京XX私募基金管理有限公司",
+            penaltyReason: "①未及时填报并定期更新办公地、员工及产品信息，报送信息不真实、不准确、不完整<br>②挪用基金财产",
+            managerPenalty: "责令改正（收到决定书30日内提交书面报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第四项、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 103,
+            issueDate: "2025年4月9日",
+            documentDate: "2025年4月9日",
+            documentNumber: "",
+            regulatoryAgency: "湖南监管局",
+            managerName: "湖南XX资产管理有限公司",
+            penaltyReason: "①实际控制人、高管、员工、办公地等信息未及时更新<br>②未实际履行投资“冷静期”回访确认程序<br>③公司部分产品无投资者资产证明",
+            managerPenalty: "责令改正，并记入中国资本市场诚信信息数据库（收到决定书之日起30日对问题进行整改并提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十二条、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 104,
+            issueDate: "2025年4月10日",
+            documentDate: "2025年1月21日",
+            documentNumber: "行政监管措施决定书〔2025〕20号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳市XX创业投资集团有限公司",
+            penaltyReason: "①未妥善保存部分投资者适当性证明材料<br>②未对部分投资者的风险识别能力和风险承担能力进行评估<br>③未对个别基金进行风险评级<br>④未按照合同约定，向投资者披露基金投资、可能存在的利益冲突情况以及可能影响投资者合法权益的重大信息<br>⑤未按基金合同约定进行投资运作，未履行谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "朱X（负责日常经营、投资决策及信披工作）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十六条第一款、第十七条、第二十四条、第二十六条"
+        },
+        {
+            id: 105,
+            issueDate: "2025年4月11日",
+            documentDate: "2025年4月1日",
+            documentNumber: "行政监管措施决定书〔2025〕44号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XX资产管理有限公司",
+            penaltyReason: "未妥善保管私募基金投资者适当性管理材料",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十六条、第三十三条"
+        },
+        {
+            id: 106,
+            issueDate: "2025年4月11日",
+            documentDate: "2025年4月10日",
+            documentNumber: "",
+            regulatoryAgency: "湖南监管局",
+            managerName: "湖南XXXX投资有限公司",
+            penaltyReason: "①公司未履行基金管理人诚实信用、谨慎勤勉义务，内部管理不规范，导致投资者误认为与公司签订了保本保收益协议<br>②公司通过问卷调查形式对个别投资者风险识别能力和风险承受能力的评估时间晚于公司与其签订基金合同的时间<br>③公司在基金产品出现影响其资产净值和持续运行的重大事项时，未按基金合同约定及时告知投资者<br>④2021年7月至12月期间，公司发工资的人员6名，缴纳社保的人员仅1名，签订劳动合同的人员仅2名，存在兼职的情形<br>⑤公司未及时更新登记备案信息，在中基协登记的注册资本、股东、从业人员信息均与实际不符，未及时披露基金产品的季报、年报数据信息",
+            managerPenalty: "责令改正，并记入中国资本市场诚信信息数据库",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十三条第七项、第二十四条、第二十五条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第（八）项"
+        },
+        {
+            id: 107,
+            issueDate: "2025年4月11日",
+            documentDate: "2025年3月3日",
+            documentNumber: "中基协复核〔2025〕17号<br>原决定书<br>中基协处分〔2024〕505号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XX私募基金管理有限公司",
+            penaltyReason: "①未及时提交部分私募基金产品的备案申请<br>②未向投资者披露管理人取得的管理费<br>③未真实、准确、完整、及时提供检查所需材料和信息<br>④高级管理人员登记信息与事实不符",
+            managerPenalty: "",
+            staffPenalty: "刘XX（时任挂职合规风控负责人）：警告（复核维持）",
+            legalBasis: "《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 108,
+            issueDate: "2025年4月11日",
+            documentDate: "2025年1月20日",
+            documentNumber: "中基协处分〔2025〕21号<br>中基协处分〔2025〕22号<br>中基协处分〔2025〕23号<br>中基协处分〔2025〕24号",
+            regulatoryAgency: "中基协",
+            managerName: "青岛XX资产管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务（通道业务、交易风控不健全）<br>②未按照合同约定及时向投资者披露信息（变更投资策略后未及时向投资者披露）",
+            managerPenalty: "取消会员资格、撤销管理人登记",
+            staffPenalty: "<br>国XX（合规风控负责人）：公开谴责<br>辛X（时任法代）：公开谴责<br>周XX（法代、总经理）：取消基金从业资格",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十四条<br>《私募投资基金管理人内部控制指引》第十五条<br>《私募投资基金信息披露管理办法》第三条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 109,
+            issueDate: "2025年4月11日",
+            documentDate: "2025年1月22日",
+            documentNumber: "中基协处分〔2025〕31号<br>中基协处分〔2025〕32号<br>中基协处分〔2025〕33号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX资产管理有限公司",
+            penaltyReason: "未及时申请产品备案",
+            managerPenalty: "警告",
+            staffPenalty: "<br>葛XX（法代）：公开谴责<br>华XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金管理人登记和基金备案办法（试行）》第十一条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 110,
+            issueDate: "2025年4月11日",
+            documentDate: "2025年1月22日",
+            documentNumber: "中基协处分〔2025〕29号<br>中基协处分〔2025〕30号<br>中基协处分〔2025〕33号",
+            regulatoryAgency: "中基协",
+            managerName: "XX投资管理（上海）有限公司",
+            penaltyReason: "①未适当履行信息披露义务（个别投资标的财务数据，合同约定的基金财务数据未如实向投资者披露）<br>②未按规定进行信息报送（相关高管近三年合法合规及诚信情况未如实填报）<br>③未履行诚实信用、谨慎勤勉义务（未根据相关补充协议履行职责）",
+            managerPenalty: "公开谴责",
+            staffPenalty: "<br>葛XX（法代）：公开谴责<br>尹XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条<br>《私募投资基金管理人登记和基金备案办法（试行）》第十五条<br>《私募投资基金管理人内部控制指引》第四条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 111,
+            issueDate: "2025年4月14日",
+            documentDate: "2025年1月21日",
+            documentNumber: "行政监管措施决定书〔2025〕19号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XXX资本管理有限公司",
+            penaltyReason: "未独立开展投资决策，未履行谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "陈X（基金经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第三十三条"
+        },
+        {
+            id: 112,
+            issueDate: "2025年4月14日",
+            documentDate: "2025年4月10日",
+            documentNumber: "〔2025〕9号",
+            regulatoryAgency: "新疆监管局",
+            managerName: "新疆XXX创股权投资管理有限公司",
+            penaltyReason: "①利用基金财产及职务之便，为管理人牟取利益<br>②未尽谨慎勤勉义务，未妥善保存私募基金投资决策、交易等方面的记录及其他相关材料",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "魏XX（法代、总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款第二款、第二十三条第（三）项、第二十六条、第三十三条"
+        },
+        {
+            id: 113,
+            issueDate: "2025年4月17日",
+            documentDate: "2025年4月17日",
+            documentNumber: "〔2025〕30号",
+            regulatoryAgency: "湖北监管局",
+            managerName: "武汉XX私募基金管理有限公司",
+            penaltyReason: "①委托他人募集资金<br>②不按照合同约定进行投资运作<br>③未妥善保存私募基金投资者适当性管理等方面的资料",
+            managerPenalty: "警示函",
+            staffPenalty: "<br>周X（法代、总经理）：警示函<br>谢XX（合规风控负责人）：警示函",
+            legalBasis: "《私募投资基金监督管理条例》第十七条<br>《私募投资基金监督管理暂行办法》第二十三条第九项、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项"
+        },
+        {
+            id: 114,
+            issueDate: "2025年4月18日",
+            documentDate: "2025年2月13日",
+            documentNumber: "行政监管措施决定书〔2025〕31号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "前海XX（深圳）股权投资有限公司",
+            penaltyReason: "未按照基金合同约定向部分投资者披露基金投资、资产负债及可能影响投资者合法权益的重大信息",
+            managerPenalty: "警示函",
+            staffPenalty: "许XX（负责信披工作）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第二款、第二十四条、第三十三条"
+        },
+        {
+            id: 115,
+            issueDate: "2025年4月18日",
+            documentDate: "2025年1月20日",
+            documentNumber: "中基协处分〔2025〕25号<br>中基协处分〔2025〕26号<br>中基协处分〔2025〕27号<br>中基协处分〔2025〕28号",
+            regulatoryAgency: "中基协",
+            managerName: "杭州XX资产管理有限公司",
+            penaltyReason: "①保本保收益（部分产品合同内存在“预期收益率”表述）<br>②管理未备案基金产品，未按规定及时整改<br>③未尽谨慎勤勉义务（管理人展业之初承接过通道类业务）<br>④混同办公",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案十二个月",
+            staffPenalty: "<br>韩X（合规风控负责人）：公开谴责<br>魏XX（合规风控负责人）：公开谴责<br>张X（法代）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金募集行为管理办法》第二十四条<br>《私募基金管理人登记须知》第二条第（三）项<br>《关于加强私募投资基金监管的若干规定》第六条第三款、第十四条第二款第（二）项<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 116,
+            issueDate: "2025年4月18日",
+            documentDate: "2025年1月23日",
+            documentNumber: "中基协处分〔2025〕34号<br>中基协处分〔2025〕35号<br>中基协处分〔2025〕36号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资有限公司",
+            penaltyReason: "①兼营与私募基金管理无关或存在利益冲突的其他业务（协助某集团发债并收取咨询费）<br>②未履行谨慎勤勉义务（根据其他投资公司指令购买指定债券）",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案六个月",
+            staffPenalty: "<br>乐XX（法代、执行董事、投资总监）：公开谴责<br>张X（时任合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金管理人内部控制指引》第八条<br>《私募投资基金监督管理暂行办法》第四条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 117,
+            issueDate: "2025年4月18日",
+            documentDate: "2025年4月10日",
+            documentNumber: "",
+            regulatoryAgency: "重庆监管局",
+            managerName: "重庆XX私募证券投资基金管理有限公司",
+            penaltyReason: "①未按规定向投资者披露信息<br>②部分产品未对投资者的风险识别能力和风险承担能力进行评估",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》、第十六条、第二十四条、第三十三条<br>《私募投资基金信息披露管理办法》第十六条"
+        },
+        {
+            id: 118,
+            issueDate: "2025年4月18日",
+            documentDate: "2025年4月14日",
+            documentNumber: "〔2025〕39号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广东XXXX股权投资基金管理有限公司",
+            penaltyReason: "①个别私募基金产品未按规定在中国证券投资基金业协会办理备案手续<br>②未真实、准确、完整填报从业人员信息<br>③适当性内部管理制度中未明确投资者分类、产品或者服务分级、适当性匹配的具体依据、方法、流程等<br>④未有效执行投资管理制度",
+            managerPenalty: "警示函（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第八条第一款、第二十五条第一款、第三十三条<br>《证券期货投资者适当性管理办法》第二十九条第一款、第三十七条"
+        },
+        {
+            id: 119,
+            issueDate: "2025年4月22日",
+            documentDate: "2025年4月15日",
+            documentNumber: "〔2025〕23号<br>〔2025〕24号<br>〔2025〕25号<br>〔2025〕26号",
+            regulatoryAgency: "四川监管局",
+            managerName: "成都XXXX投资有限公司",
+            penaltyReason: "①未严格履行投资者适当性管理义务<br>②委托不具有基金销售业务资格的单位从事资金募集活动<br>③以从事资金募集活动为目的设立分支机构<br>④从业人员变更未按规定报告",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内完成整改并提交书面整改报告）",
+            staffPenalty: "<br>梁XX（法代、总经理）：警示函，并记入证券期货市场诚信档案<br>杨XX（时任董事长）：警示函，并记入证券期货市场诚信档案<br>刘X（时任合规风控负责人）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第八项、第九项、第十三条第一款"
+        },
+        {
+            id: 120,
+            issueDate: "2025年4月23日",
+            documentDate: "2025年4月22日",
+            documentNumber: "中国证券监督管理委员会厦门监管局行政监管措施决定书〔2025〕4号",
+            regulatoryAgency: "厦门监管局",
+            managerName: "厦门XX产业创新资本私募基金管理有限公司",
+            penaltyReason: "未全面履行谨慎勤勉的义务，存在未谨慎开展基金宣传推介的情形",
+            managerPenalty: "警示函，并记入诚信档案",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条<br>《证券期货市场诚信监督管理办法》"
+        },
+        {
+            id: 121,
+            issueDate: "2025年4月23日",
+            documentDate: "2025年4月22日",
+            documentNumber: "〔2025〕65号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XX资本管理有限公司",
+            penaltyReason: "①对个别投资者未穿透核查、适当性管理工作不到位<br>②未按照合同约定履行信息披露义务<br>③未及时向中国证券投资基金业协会报告基金的重大变更事项",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十三条第二款、第十六条、第二十四条、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 122,
+            issueDate: "2025年4月23日",
+            documentDate: "2025年4月22日",
+            documentNumber: "〔2025〕64号",
+            regulatoryAgency: "北京监管局",
+            managerName: "XXXX（北京）资本管理有限公司",
+            penaltyReason: "将私募基金财产用于借款余额超过该私募基金实缴20%",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第八条第二款、第十三条<br>《私募投资基金监督管理暂行办法》第二十三条第九项、第三十三条"
+        },
+        {
+            id: 123,
+            issueDate: "2025年4月23日",
+            documentDate: "2025年4月18日",
+            documentNumber: "〔2025〕63号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX投资管理有限公司",
+            penaltyReason: "管理、运用私募基金财产，未能恪尽职守地履行诚实信用、谨慎勤勉的义务",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第三十三条"
+        },
+        {
+            id: 124,
+            issueDate: "2025年4月23日",
+            documentDate: "2025年4月18日",
+            documentNumber: "〔2025〕62号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX投资基金管理有限公司",
+            penaltyReason: "①管理、运用私募基金财产,未能恪尽职守地履行诚实信用、谨慎勤勉的义务<br>②未在基金募集期间,对投资者的风险识别能力和风险承担能力进行评估",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十六条第一款、第三十三条"
+        },
+        {
+            id: 125,
+            issueDate: "2025年4月23日",
+            documentDate: "2025年4月23日",
+            documentNumber: "〔2025〕8号",
+            regulatoryAgency: "海南监管局",
+            managerName: "XX（海南）私募基金管理有限公司",
+            penaltyReason: "未按规定穿透核查最终投资者是否为合格投资者，且部分最终投资者不符合合格投资者要求",
+            managerPenalty: "责令改正，并记入资本市场诚信档案数据库",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十二条、第十三条第二款、第十四条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第一项、第十三条第一款"
+        },
+        {
+            id: 126,
+            issueDate: "2025年4月25日",
+            documentDate: "2025年4月17日",
+            documentNumber: "〔2025〕43号<br>〔2025〕44号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广东XX投资集团有限公司",
+            penaltyReason: "未按规定对投资者的风险识别能力和风险承担能力进行评估",
+            managerPenalty: "警示函",
+            staffPenalty: "王X（法代、董事长、总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第二款、第十六条第一款、第三十三条"
+        },
+        {
+            id: 127,
+            issueDate: "2025年4月25日",
+            documentDate: "2025年1月24日",
+            documentNumber: "中基协处分〔2025〕37号<br>中基协处分〔2025〕38号<br>中基协处分〔2025〕39号",
+            regulatoryAgency: "中基协",
+            managerName: "深圳XXX私募证券基金管理有限公司",
+            penaltyReason: "管理人或法代向投资者承诺投资本金不受损失、固定比例损失等",
+            managerPenalty: "警告",
+            staffPenalty: "<br>刘XX（法代、总经理）：警告<br>严X（时任合规风控负责人）：警告",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十五条<br>《私募投资基金募集行为管理办法》第二十四条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 128,
+            issueDate: "2025年4月25日",
+            documentDate: "2025年3月10日",
+            documentNumber: "中基协复核〔2025〕18号<br>原决定书<br>中基协处分〔2024〕562号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX资产管理有限公司",
+            penaltyReason: "未按照规定履行职责，未对基金宣传募集、投资运作等进行有效管理和控制",
+            managerPenalty: "",
+            staffPenalty: "帖XX（合规风控负责人）：公开谴责（复核维持）",
+            legalBasis: "《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 129,
+            issueDate: "2025年4月25日",
+            documentDate: "2025年1月24日",
+            documentNumber: "中基协处分〔2025〕40号<br>中基协处分〔2025〕41号<br>中基协处分〔2025〕42号<br>中基协处分〔2025〕43号<br>中基协处分〔2025〕44号<br>中基协处分〔2025〕45号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "①兼营与私募基金管理无关或存在利益冲突的其他业务（从事债券融资咨询服务并收取相关费用）<br>②利用私募基金财产为自身牟取非法利益（利用管理产品购买合作方债券，收取费用）<br>③委托不具备基金销售资格单位或个人从事资金募集活动<br>④登记的高级管理人员未实际履职（合规风控负责人系签署合作协议挂名，约定挂名期限不多于12个月）<br>⑤未就登记信息变更向协会履行变更手续（人员及股东变更均未及时更新相关信息）",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>吴XX（法代）：公开谴责<br>吴X（实际总经理）：公开谴责<br>薛X（实际合规风控负责人）：公开谴责<br>吴X（时任法代、总经理）：警告<br>王XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金管理人内部控制指引》第七条<br>《关于加强私募投资基金监管的若干规定》第六条、第九条<br>《私募投资基金管理人内部控制指引》第七条、第十二条、第十七条<br>《私募投资基金管理人登记和基金备案办法（试行）》第二十二条<br>《私募投资基金登记备案办法》第四十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 130,
+            issueDate: "2025年4月25日",
+            documentDate: "2025年1月24日",
+            documentNumber: "中基协处分〔2025〕46号<br>中基协处分〔2025〕47号<br>中基协处分〔2025〕48号",
+            regulatoryAgency: "中基协",
+            managerName: "XX（上海）私募基金管理有限公司",
+            penaltyReason: "未及时向协会报送个别高管相关信息",
+            managerPenalty: "警告",
+            staffPenalty: "<br>成XX（法代）：警告<br>周XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金登记备案办法》第六十二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 131,
+            issueDate: "2025年4月28日",
+            documentDate: "2025年4月21日",
+            documentNumber: "",
+            regulatoryAgency: "浙江监管局",
+            managerName: "温州XX资产管理有限公司",
+            penaltyReason: "①出借私募产品作为外部通道<br>②关联交易未按基金合同约定履行相应程序和信息披露<br>③部分产品的总资产占净资产的比例超过200%<br>④证券交易所首发证券王侠询价和配售业务不规范",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面整改报告）",
+            staffPenalty: "胡X（法代、执行董事、总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理条例》第二十七条第一款、第四十条第二款<br>《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第三十三条<br>《证券期货经营机构私募资产管理业务运作管理暂行规定》第四条第一款第七项、第十二条"
+        },
+        {
+            id: 132,
+            issueDate: "2025年4月28日",
+            documentDate: "2025年4月25日",
+            documentNumber: "〔2025〕9号",
+            regulatoryAgency: "海南监管局",
+            managerName: "海南XX私募基金管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务，缺乏开展私募投资基金业务必要的从业人员、经营场所等条件<br>②未按照合同约定进行投资运作且未向投资者进行信息披露<br>③未妥善保存私募基金投资决策、交易等方面的记录及其他相关资料",
+            managerPenalty: "责令改正，并记入资本市场诚信档案数据库",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项、第十三条第一款"
+        },
+        {
+            id: 133,
+            issueDate: "2025年4月29日",
+            documentDate: "2025年4月2日",
+            documentNumber: "行政监管措施决定书〔2025〕47号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XXX私募证券投资基金管理有限公司",
+            penaltyReason: "①未按照合同约定向投资者披露可能影响投资者合法权益的重大信息<br>②未妥善保存投资者适当性管理方面相关资料",
+            managerPenalty: "警示函",
+            staffPenalty: "贺XX（法代、总经理、执行董事）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第二十六条、第三十三条<br>《关于加强私募投资基金监管若干规定》第九条第一款第八项"
+        },
+        {
+            id: 134,
+            issueDate: "2025年4月30日",
+            documentDate: "2025年4月24日",
+            documentNumber: "中国证券监督管理委员会安徽监管局行政监管措施决定书〔2025〕30号<br>中国证券监督管理委员会安徽监管局行政监管措施决定书〔2025〕31号",
+            regulatoryAgency: "安徽监管局",
+            managerName: "黄山XX私募基金管理有限公司",
+            penaltyReason: "①在公司微信公众号、公司年会上展示基金产品收益率等信息，且合格投资者确认程序设置不完善<br>②投资者适当性管理落实不到位<br>③向非合格投资者募集资金<br>④在投资决策、内部控制等方面未恪尽职守，未充分履行诚实信用、谨慎勤勉的义务",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "戴XX（法代、总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十一条第一款、第十二条第一款及第二款、第十四条、第三十三条<br>《证券期货投资者适当性管理办法》第三十条、第三十七条"
+        },
+        {
+            id: 135,
+            issueDate: "2025年4月30日",
+            documentDate: "2025年2月12日",
+            documentNumber: "中基协处分〔2025〕54号<br>中基协处分〔2025〕55号<br>中基协处分〔2025〕56号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①委托不具有基金销售业务资格的单位从事资金募集活动<br>②未严格落实投资者适当性审查要求<br>③未建立与实施有效的内部控制（购买某债券出现两日交易造成明显亏损情形，系交易员技术性错误造成）<br>④从事基金业务的部分人员未取得基金从业资格（销售人员无从业资格）",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案十二个月",
+            staffPenalty: "<br>张XX（法代、总经理）：公开谴责<br>韩X（合规风控负责人）：公开谴责",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条<br>《私募投资基金募集行为管理办法》第二条、第二十七条<br>《基金募集机构投资者适当性管理实施指引》第二十七条<br>《私募投资基金管理人内部控制指引》第四条、第六条、第七条、第十一条<br>《基金从业人员管理规则》第五条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 136,
+            issueDate: "2025年4月30日",
+            documentDate: "2025年2月19日",
+            documentNumber: "中基协处分〔2025〕57号<br>中基协处分〔2025〕58号<br>中基协处分〔2025〕59号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务（委托非员工管理基金）<br>②经营管理失控（实控人兼法代总经理失联，员工离职，办公场地被强制清退，档案资料遗失，不符合管理人登记要求）",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>白XX（法代、总经理）：取消基金从业资格）<br>谢X（时任合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《私募投资基金登记备案办法》第二十一条<br>《私募基金管理人登记指引第1号—基本经营要求》第八条、第九条、第十条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 137,
+            issueDate: "2025年4月30日",
+            documentDate: "2025年1月24日",
+            documentNumber: "中基协处分〔2025〕49号<br>中基协处分〔2025〕50号<br>中基协处分〔2025〕51号<br>中基协处分〔2025〕52号",
+            regulatoryAgency: "中基协",
+            managerName: "深圳市XX基金管理有限公司",
+            penaltyReason: "①向合格投资者之外的个人募集资金<br>②在管理的私募基金触及平仓线、预警线时，未按照合同约定向投资者披露基金投资相关信息<br>③未填写投资者风险测评问卷评级结果，未对投资者的风险识别能力和风险承担能力进行评估（募集资金未填写所有投资者的风险测评问卷评级结果）<br>④未妥善保存投资者适当性管理相关资料<br>⑤未真实、准确提交检查材料（根据提交的说明，合规负责人任职情况与说明说明不符）<br>⑥报送的高管人员与实际不符（前合规负责人存在挂职情形）<br>⑦通过非公司从业人员向投资者销售私募基金产品",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>李X（法代）：取消基金从业资格<br>李X（时任法代；合规风控负责人）：公开谴责<br>孙X（挂名风控）：警告",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十二条、第十六条、第二十四条、第二十六条<br>《私募投资基金信息披露管理办法》第十八条第五项<br>《中国证券投资基金业协会自律检查规则》第二条<br>《私募投资基金管理人登记和基金备案办法（试行）》第四条<br>《私募投资基金募集行为管理办法》第二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 138,
+            issueDate: "2025年3月3日",
+            documentDate: "2025年2月26日",
+            documentNumber: "行政监管措施决定书〔2025〕17号<br>行政监管措施决定书〔2025〕18号",
+            regulatoryAgency: "安徽监管局",
+            managerName: "安徽XX股权投资管理有限公司",
+            penaltyReason: "①部分基金产品在合格投资者确认、风险评级方面未严格履行投资者适当性义务<br>②从事与私募基金管理无关的业务<br>③未按规定办理基金备案手续",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "姚XX（法代、总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第八条第一款、第十七条、第二十三条第九项、第三十三条<br>《关于加强私募投资基金监管的若干规定》第四条"
+        },
+        {
+            id: 139,
+            issueDate: "2025年3月5日",
+            documentDate: "2025年3月5日",
+            documentNumber: "〔2025〕2号",
+            regulatoryAgency: "湖北监管局",
+            managerName: "XXXX(武汉)投资有限公司",
+            penaltyReason: "①间接向投资者承诺保本保收益<br>②将固有财产与基金财产混同运作<br>③不按照合同约定履行职责<br>④未妥善保管管理人及基金产品财务资料<br>⑤未及时填报并定期更新管理人的有关信息",
+            managerPenalty: "警示函",
+            staffPenalty: "<br>唐X（法代、董事长）：警示函<br>姜XX（总经理、投资总监）：警示函<br>戴XX（合规风控负责人）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十五条、第二十三条第一项、第二十三条第九项、第二十五条第一款、第二十六条<br>《关于加强私募投资基金监管的若干规定》第六条第三项以及第九条第一款第十二项"
+        },
+        {
+            id: 140,
+            issueDate: "2025年3月5日",
+            documentDate: "2025年3月5日",
+            documentNumber: "〔2025〕3号<br>〔2025〕4号",
+            regulatoryAgency: "湖北监管局",
+            managerName: "XX私募基金管理(湖北省)有限公司<br>（现名杭州XX私募基金管理有限公司）",
+            penaltyReason: "①向非合格投资者募集;<br>②未妥善保存私募基金投资者适当性管理等方面材料;<br>③未及时填报并定期更新管理人的有关信息",
+            managerPenalty: "警示函",
+            staffPenalty: "<br>潘XXX（法代、总经理）：警示函<br>王X（合规风控负责人）：监管谈话（3.17 15:00带身份证）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十一条第一款、第十二条、第二十三条第九项、第二十五条第一款、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一项"
+        },
+        {
+            id: 141,
+            issueDate: "2025年3月5日",
+            documentDate: "2025年2月24日",
+            documentNumber: "监管措施〔2025〕1号<br>监管措施〔2025〕5号",
+            regulatoryAgency: "黑龙江监管局",
+            managerName: "哈尔滨市XXX投资管理有限责任公司",
+            penaltyReason: "①未及时更新从业人员人数及职务有关信息<br>②公司全职人员仅2人<br>③未建立关联交易制度<br>④未建立激励奖金递延发放机制<br>⑤合规风控负责人从事投资管理业务",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "王XX（总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十五条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第十一条、第十三条<br>《证券期货经营机构私募资产管理业务运作管理暂行规定》第十条、第十二条、第十五条第一款"
+        },
+        {
+            id: 142,
+            issueDate: "2025年3月5日",
+            documentDate: "2025年2月24日",
+            documentNumber: "监管措施〔2025〕2号<br>监管措施〔2025〕4号",
+            regulatoryAgency: "黑龙江监管局",
+            managerName: "黑龙江省XX资产管理有限公司",
+            penaltyReason: "①公司全职人员仅4人<br>②招募说明书基金募集信息中“募集账户信息、认购费用、认购份额的计算方式”均无相应信息<br>③实际执行的产品等级分类与制度不符<br>④基金经理任前不具有5年投资经验",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "池XX（总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四款第一款、第三十三条"
+        },
+        {
+            id: 143,
+            issueDate: "2025年3月14日",
+            documentDate: "2025年3月7日;2025年3月12日",
+            documentNumber: "",
+            regulatoryAgency: "浙江监管局",
+            managerName: "台州XX私募基金管理有限公司",
+            penaltyReason: "①提供、报送的实际控制人、总经理、合规风控负责人和基金投资经理等信息以及相关信息披露材料存在虚假记载<br>②未谨慎勤勉履行管理人职责，部分私募基金产品的投资管理职责委托给外部人员；报送、披露的高级管理人员未在公司实际履职",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面整改报告）",
+            staffPenalty: "徐XX（实控人）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第七项、第二十四条、第二十五条第一款的规定、第三十三条"
+        },
+        {
+            id: 144,
+            issueDate: "2025年3月16日",
+            documentDate: "2025年3月16日",
+            documentNumber: "沪证监决〔2025〕57号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XXXX股权投资管理有限公司",
+            penaltyReason: "①将他人财产混同于基金财产从事投资活动<br>②未如实向投资者披露投资项目相关信息",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第（一）项、第二十四条、第三十三条"
+        },
+        {
+            id: 145,
+            issueDate: "2025年3月17日",
+            documentDate: "2025年3月12日",
+            documentNumber: "",
+            regulatoryAgency: "浙江监管局",
+            managerName: "浙江XXXX私募基金管理有限公司",
+            penaltyReason: "①对私募基金投资范围夸大宣传、片面推介<br>②未按照基金的实际封闭期进行宣传推介<br>③委托不具有基金销售资格的单位从事资金募集活动",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面整改报告）",
+            staffPenalty: "<br>胡XX（法代、总经理）：警示函，并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面整改报告）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第八项"
+        },
+        {
+            id: 146,
+            issueDate: "2025年3月20日",
+            documentDate: "2025年3月20日",
+            documentNumber: "〔2025〕14号<br>〔2025〕15号",
+            regulatoryAgency: "湖北监管局",
+            managerName: "湖北XXXX私募基金管理有限公司",
+            penaltyReason: "①将私募基金财产用于明股实债投资活动<br>②不按照规定履行职责",
+            managerPenalty: "警示函",
+            staffPenalty: "<br>涂XX（法代、董事长）：警示函<br>邓XX（合规风控负责人）：监管谈话（3.31 15:00 带身份证）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第(七)项、第(九)项、第三十三条<br>《关于加强私募投资基金监管的若干规定》第八条第一款第（一）项"
+        },
+        {
+            id: 147,
+            issueDate: "2025年3月21日",
+            documentDate: "2024年12月31日",
+            documentNumber: "中基协处分〔2024〕582号<br>中基协处分〔2024〕583号<br>中基协处分〔2024〕584号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "①利用基金财产为本人或者投资者以外的人牟取利益<br>②委托不具有基金销售业务资格的单位或个人从事资金募集活动<br>③根据他人投资交易指令下单，未尽谨慎勤勉义务<br>④委托他人制作、收集部分投资者适当性材料，在适当性管理过程中，未勤勉尽责，审慎履职",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>周XX（合规风控负责人）：公开谴责<br>汪X（法代、总经理）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十三条<br>《关于加强私募投资基金监管的若干规定》第六条<br>《证券期货投资者适当性管理办法》第三条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第二十二条、第三十九条、第四十条"
+        },
+        {
+            id: 148,
+            issueDate: "2025年3月21日",
+            documentDate: "2025年1月17日",
+            documentNumber: "中基协处分〔2025〕17号<br>中基协处分〔2025〕18号<br>中基协处分〔2025〕19号<br>中基协处分〔2025〕20号",
+            regulatoryAgency: "中基协",
+            managerName: "XX（杭州）私募基金管理有限公司",
+            penaltyReason: "①未勤勉谨慎履行管理职责，为相关主体提供利益输送的通道业务<br>②从事与私募基金管理无关的业务，提供信用债市场咨询服务、帮助债券发行人推荐资金认购方并收取相关费用<br>③未按合同约定履行关联交易信息披露义务",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案十二个月",
+            staffPenalty: "<br>刘XX（投研部基金经理）：公开谴责<br>张X（合规风控负责人）：公开谴责<br>张X（法代）：公开谴责",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第四条<br>《私募投资基金管理人内部控制指引》第八条<br>《私募投资基金监督管理暂行办法》第二十四条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 149,
+            issueDate: "2025年3月21日",
+            documentDate: "2025年3月18日",
+            documentNumber: "〔2025〕44号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XX投资有限公司",
+            penaltyReason: "未按照合同约定向投资者进行信息披露",
+            managerPenalty: "责令改正（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第三十三条"
+        },
+        {
+            id: 150,
+            issueDate: "2025年3月24日",
+            documentDate: "2025年3月17日",
+            documentNumber: "〔2025〕28号",
+            regulatoryAgency: "广东监管局",
+            managerName: "XXXX股权投资基金管理（珠海）有限公司",
+            penaltyReason: "①公司未实际履行投资管理职责<br>②未及时更新管理人的有关信息<br>③在管产品违反合同约定开展投资",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项、第十三条第一款"
+        },
+        {
+            id: 151,
+            issueDate: "2025年3月25日",
+            documentDate: "2025年3月18日",
+            documentNumber: "监管措施〔2025〕8号<br>监管措施〔2025〕9号",
+            regulatoryAgency: "黑龙江监管局",
+            managerName: "大庆市XX私募基金管理有限公司",
+            penaltyReason: "①未按要求及时更新从业人员相关信息<br>②公司全职人员仅2人<br>③未建立关联交易制度<br>④未建立投资者适当性管理制度",
+            managerPenalty: "责令改正",
+            staffPenalty: "韩XX（总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十五条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第十一条、第十三条<br>《证券期货投资者适当性管理办法（2022年修正）》第二十九条、第三十七条"
+        },
+        {
+            id: 152,
+            issueDate: "2025年3月25日",
+            documentDate: "2025年3月19日",
+            documentNumber: "监管措施〔2025〕10号<br>监管措施〔2025〕11号",
+            regulatoryAgency: "黑龙江监管局",
+            managerName: "哈尔滨XX投资管理有限公司",
+            penaltyReason: "①从事私募基金服务活动，未切实履行勤勉尽责义务<br>②未建立投资者适当性管理制度",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "张XX（总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款第五款、第三十三条<br>《证券期货投资者适当性管理办法（2022年修正）》第二十九条、第三十七条"
+        },
+        {
+            id: 153,
+            issueDate: "2025年3月27日",
+            documentDate: "2025年2月6日",
+            documentNumber: "行政监管措施决定书〔2025〕28号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳XX投资基金管理有限公司",
+            penaltyReason: "①未通过问卷调查等方式对部分投资者的风险识别能力和风险承受能力进行评估<br>②向风险识别能力和风险承担能力不匹配的投资者推介基金<br>③未妥善保管部分私募基金投资者适当性管理材料的情形",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十六条第一款、第十七条、第二十六条、第三十三条"
+        },
+        {
+            id: 154,
+            issueDate: "2025年3月28日",
+            documentDate: "2025年3月26日",
+            documentNumber: "〔2025〕51号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX投资基金管理有限公司",
+            penaltyReason: "①管理、运用私募基金财产，未能恪尽职守地履行诚实信用、谨慎勤勉的义务<br>②未按照合同约定向投资者进行信息披露",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十四条、第三十三条"
+        },
+        {
+            id: 155,
+            issueDate: "2025年3月28日",
+            documentDate: "2025年1月6日",
+            documentNumber: "中基协处分〔2025〕3号<br>中基协处分〔2025〕4号<br>中基协处分〔2025〕5号<br>中基协处分〔2025〕6号",
+            regulatoryAgency: "中基协",
+            managerName: "杭州XXX投资管理有限公司",
+            penaltyReason: "①办公场所不独立<br>②未有效执行内控制度<br>③未披露影响投资者利益的重大事项<br>④无专职员工",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>张XX（上海侏罗纪、杭州侏罗纪法代）：公开谴责<br>倪XX（时任合规风控负责人）：公开谴责<br>陈X（合规风控负责人）：公开谴责",
+            legalBasis: "《私募基金管理人登记须知》第二条<br>《私募基金管理人登记指引第1号》第八条<br>《私募投资基金管理人内部控制指引》第二十七条<br>《私募投资基金信息披露管理办法》第十八条第十四项<br>《私募投资基金登记备案办法》第八条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 156,
+            issueDate: "2025年3月28日",
+            documentDate: "2025年1月6日",
+            documentNumber: "中基协处分〔2025〕1号<br>中基协处分〔2025〕2号<br>中基协处分〔2025〕6号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XXX资产管理合伙企业（有限合伙）",
+            penaltyReason: "①办公场所不独立<br>②未履行谨慎勤勉义务（未按约定收取某证券类产品管理费）<br>③基金账户运作不规范（管理人与产品发生往来款）<br>④内部岗位设置不独立（某员工同时任交易员与基金经理）",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案三个月",
+            staffPenalty: "<br>张XX（上海侏罗纪、杭州侏罗纪法代）：公开谴责<br>刘XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募基金管理人登记须知》第二条<br>《私募基金管理人登记指引第1号》第八条<br>《私募投资基金监督管理暂行办法》第四条<br>《关于加强私募投资基金监管的若干规定》第九条<br>《私募投资基金管理人内部控制指引》第十条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 157,
+            issueDate: "2025年3月28日",
+            documentDate: "2024年12月31日",
+            documentNumber: "中基协处分〔2024〕585号<br>中基协处分〔2024〕586号<br>中基协处分〔2024〕587号<br>中基协处分〔2024〕588号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①未履行诚实信用谨慎勤勉义务、未建立及实施有效的内部控制（与某咨询公司存在人员混同、资金往来等）<br>②虚假填报登记备案信息<br>③风险调查问卷不符合要求<br>④未按规定履行回访确认程序<br>⑤未及时进行重大信息变更",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>周XX（法代）：公开谴责<br>王X（监事）：公开谴责<br>王XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金管理人内部控制指引》第七条、第二十五条<br>《私募投资基金管理人登记和基金备案办法（试行）》第四条<br>《基金募集机构投资者适当性管理实施指引（试行）》第二十七条<br>《私募投资基金募集行为管理办法》第二十九条<br>《私募投资基金登记备案办法》第四十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 158,
+            issueDate: "2025年2月5日",
+            documentDate: "2025年1月23日",
+            documentNumber: "〔2025〕19号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX投资管理有限公司",
+            penaltyReason: "①管理、运用私募基金财产,未能恪尽职守地履行诚实信用、谨慎勤勉的义务<br>②未就关联交易履行相关决策程序并及时充分披露信息",
+            managerPenalty: "责令改正（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第九项、第三十三条<br>《关于加强私募投资基金监管的若干规定》第十一条、第十三条第一款"
+        },
+        {
+            id: 159,
+            issueDate: "2025年2月5日",
+            documentDate: "2025年2月5日",
+            documentNumber: "沪证监决〔2025〕41号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "委托不具有基金销售业务资格的个人从事资金募集活动",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第九项<br>《关于加强私募投资基金监管的若干规定》第六条第一款第八项、第三十三条"
+        },
+        {
+            id: 160,
+            issueDate: "2025年2月5日",
+            documentDate: "2025年2月5日",
+            documentNumber: "沪证监决〔2025〕43号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX股权投资基金管理有限公司",
+            penaltyReason: "①在投资管理过程中未尽谨慎勤勉义务<br>②未按合同约定向投资者进行信息披露<br>③未保存向投资者进行信息披露的证明材料",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "违反《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第二十六条、第三十三条"
+        },
+        {
+            id: 161,
+            issueDate: "2025年2月6日",
+            documentDate: "2025年2月5日",
+            documentNumber: "〔2025〕1号",
+            regulatoryAgency: "内蒙古监管局",
+            managerName: "内蒙古XX中小微企业投资管理有限公司",
+            penaltyReason: "①公司现有制度未涵盖募投管退各环节<br>②未建立有效的档案管理机制没按要求妥善保存私募基金业务相关资料<br>③未按规定自行或者委托第三方机构对私募基金进行风险评级，未严格开展投资者风险承担能力评估确认等投资者适当性工作<br>④为被投资企业提供借款，存在明股实债等非私募基金投资行为<br>⑤未真实、准确、完整向中国证券投资基金业协会报送私募基金管理人有关信息",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十六条第一款、第十七条、第二十三条第九项、第二十五条第一款、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第八条第一款"
+        },
+        {
+            id: 162,
+            issueDate: "2025年2月6日",
+            documentDate: "2025年2月5日",
+            documentNumber: "〔2025〕2号",
+            regulatoryAgency: "内蒙古监管局",
+            managerName: "内蒙古XX资产管理有限公司",
+            penaltyReason: "①公司现有制度未涵盖募、投、管、退各环节，未建立关联交易管理等机制；<br>②未按要求妥善保存私募基金业务相关资料；<br>③未按规定及合同约定开展信息披露工作<br>④未真实、准确、完整向中国证券投资基金业协会报送私募基金管理人有关信息；<br>⑤从事与私募基金无关的其他业务。",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第九项、第二十四条、第二十五条、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第四条、第十一条"
+        },
+        {
+            id: 163,
+            issueDate: "2025年2月6日",
+            documentDate: "2025年2月5日",
+            documentNumber: "〔2025〕3号<br>〔2025〕4号",
+            regulatoryAgency: "内蒙古监管局",
+            managerName: "内蒙古XX私募基金管理有限公司",
+            penaltyReason: "①管理、运用基金财产过程中，在尽职调查、投资决策、投后管理等方面未恪尽职守，未履行诚实信用、谨慎勤勉的义务；<br>②侵占、挪用基金财产；<br>③未按规定及合同约定履行信息披露义务",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "<br>贺XX（时任总经理）：责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内提交书面整改报告）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第四项、第二十四条、第三十三条"
+        },
+        {
+            id: 164,
+            issueDate: "2025年2月6日",
+            documentDate: "2025年2月5日",
+            documentNumber: "〔2025〕5号 <br>〔2025〕6号",
+            regulatoryAgency: "内蒙古监管局",
+            managerName: "内蒙古XX股权投资基金管理有限责任公司",
+            penaltyReason: "①内部管理有效性不足，未真实、准确、完整报送私募基金管理人有关信息；<br>②管理、运用基金财产过程中，在尽职调查、投资决策、宣传销售、适当性管理、投后管理等方面未恪尽职守，未履行诚实信用、谨慎勤勉的义务。",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "<br>白XX（时任法代、董事长兼总经理）：责令改正，并记入证券期货市场诚信档案<br>（收到决定书之日起30日内提交书面整改报告）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 165,
+            issueDate: "2025年2月7日",
+            documentDate: "2025年1月17日",
+            documentNumber: "中基协复核〔2025〕11号<br>原决定书（中基协处分〔2024〕400号）<br>中基协复核〔2025〕12号",
+            regulatoryAgency: "中基协",
+            managerName: "深圳XX基金管理有限公司（复核决定书，维持）",
+            penaltyReason: "①向非合格投资者募集资金<br>②向投资者承诺保本保收益<br>③侵占基金财产和客户资金<br>④不配合协会自律检查",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>谭X（法代）：取消基金从业资格（复核维持）<br>赵XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十二条、第十四条<br>《私募投资基金募集行为管理办法》第九条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 166,
+            issueDate: "2025年2月7日",
+            documentDate: "2025年1月17日",
+            documentNumber: "中基协复核〔2025〕8号<br>原决定书（中基协处分〔2024〕451号）<br>中基协复核〔2025〕9号<br>中基协复核〔2025〕10号",
+            regulatoryAgency: "中基协",
+            managerName: "湖南XX股权投资基金管理有限公司（复核决定书，维持）",
+            penaltyReason: "①未按规定办理基金备案手续<br>②将部分基金财产投资于其实控人及其实际控制企业或项目<br>③未按要求收集资产证明或收入证明，未合理审慎审查合格投资者标准<br>④未及时更新登记信息",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>邓XX（执行董事、实控人）：公开谴责，加入黑名单（期限为三年）（复核维持）<br>贺XX（法代、总经理）：公开谴责，加入黑名单（期限一年）<br>欧XX（副总经理、合规风控负责人，实际任职总经理）：公开谴责，加入黑名单（期限一年）（复核维持）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第八条、第十一条第一款、第十二条、第二十三条第九项、第二十五条第一款<br>《关于加强私募投资基金监管的若干规定》第九条第一款第四项<br>《私募投资基金管理人登记和基金备案办法（试行）》第十一条、第十五条、第二十二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十三条"
+        },
+        {
+            id: 167,
+            issueDate: "2025年2月8日",
+            documentDate: "2025年1月7日",
+            documentNumber: "行政监管措施决定书〔2025〕3号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XX基金管理有限公司",
+            penaltyReason: "存在从事与私募基金管理无关业务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第四条、第十三条第一款<br>《私募投资基金监督管理暂行办法》第三十三条"
+        },
+        {
+            id: 168,
+            issueDate: "2025年2月10日",
+            documentDate: "2025年2月6日",
+            documentNumber: "〔2025〕30号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XX私募基金管理有限公司",
+            penaltyReason: "①管理、运用私募基金财产，未能恪尽职守地履行诚实信用、谨慎勤勉的义务<br>②未履行投资者适当性义务",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十六条、第三十三条<br>《证券期货投资者适当性管理办法》第三条、第三十七条"
+        },
+        {
+            id: 169,
+            issueDate: "2025年2月10日",
+            documentDate: "2025年2月10日",
+            documentNumber: "〔2025〕29号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "南京XXX投资管理有限公司",
+            penaltyReason: "①公司未如实向投资者披露可能影响投资者合法权益的其他重大信息<br>②未及时填报并定期更新其从业人员的有关信息<br>③未妥善保存私募基金投资决策方面的记录",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第二十五条、第二十六条、第三十三条"
+        },
+        {
+            id: 170,
+            issueDate: "2025年2月10日",
+            documentDate: "2025年2月5日",
+            documentNumber: "",
+            regulatoryAgency: "浙江监管局",
+            managerName: "杭州XX资产管理有限公司",
+            penaltyReason: "①委托没有基金销售资格的公司进行募集资金和客户管理。<br>②担任普通合伙人的有限合伙企业存在对外募集资金且对外投资，未按规定向中国证券投资基金业协会办理基金备案手续。<br>③未完全按照合伙协议约定履行信息披露义务。<br>④部分基金产品未对投资者的风险承受能力做出评估",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面整改报告）",
+            staffPenalty: "江X（法代、总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第八条、第十六条、第二十四条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第八项、第十三条"
+        },
+        {
+            id: 171,
+            issueDate: "2025年2月10日",
+            documentDate: "2025年2月7日",
+            documentNumber: "行政监管措施决定书〔2025〕4号",
+            regulatoryAgency: "山东监管局",
+            managerName: "济南XX股权投资基金管理有限公司",
+            penaltyReason: "未谨慎开展基金宣传推介，未能恪尽职守，履行诚实信用、谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "<br>王XX（总经理）：警示函<br>王XX（合规风控负责人）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第三十三条"
+        },
+        {
+            id: 172,
+            issueDate: "2025年2月11日",
+            documentDate: "2025年1月17日",
+            documentNumber: "中国证券监督管理委员会厦门监管局行政监管措施决定书〔2025〕3号",
+            regulatoryAgency: "厦门监管局",
+            managerName: "厦门XXX资产管理有限公司",
+            penaltyReason: "存在将基金投资管理职责委托他人行使的情形",
+            managerPenalty: "警示函（收到决定书之日起30日内提交整改报告，监管局将跟踪整改落实情况，视情况采取进一步监管措施）",
+            staffPenalty: "<br>何XX（总经理）：警示函<br>蔡X（合规风控负责人）：警示函",
+            legalBasis: "《私募投资基金监督管理条例》第二十七条第一款、第四十条第二款"
+        },
+        {
+            id: 173,
+            issueDate: "2025年2月13日",
+            documentDate: "2025年2月8日",
+            documentNumber: "〔2025〕19号<br>〔2025〕20号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广东XX私募基金管理有限公司",
+            penaltyReason: "①聘用无基金从业资格的人员从事私募基金投资交易工作<br>②未按规定向投资者进行信息披露<br>③未按规定向中国证券投资基金业协会报告重大事项<br>④对部分私募基金的风险评级不恰当",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "朱X（法代、总经理）：警示函",
+            legalBasis: "《中华人民共和国证券投资基金法》第九条第三款<br>《私募投资基金监督管理暂行办法》第四条第一款、第二十四条、第二十五条第一款、第三十三条<br>《证券期货投资者适当性管理办法》第十六条第一款、第二十九条第一款、第三十七条"
+        },
+        {
+            id: 174,
+            issueDate: "2025年2月13日",
+            documentDate: "2025年2月8日",
+            documentNumber: "〔2025〕21号",
+            regulatoryAgency: "广东监管局",
+            managerName: "珠海XX股权投资管理合伙企业（有限合伙）",
+            penaltyReason: "①为单一项目设立多只基金，投资者人数超过法定限制<br>②将基金财产所产生的利息收益以财务顾问费名义收取至你合伙企业账户",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第三项第九项、第三十三条<br>《关于加强私募投资基金监管的若干规定》第七条第三款、第十三条"
+        },
+        {
+            id: 175,
+            issueDate: "2025年2月14日",
+            documentDate: "2024年12月10日",
+            documentNumber: "中基协处分〔2024〕535号<br>中基协处分〔2024〕536号<br>中基协处分〔2024〕537号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XX投资基金管理有限公司",
+            penaltyReason: "①管理多只未备案的私募基金<br>②未按规定进行信息报送",
+            managerPenalty: "公开谴责",
+            staffPenalty: "<br>郭X（合规风控负责人）：警告<br>权XX（法代、总经理）：警告",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条、第十四条<br>《私募投资基金管理人登记和基金备案办法（试行）》第二十条、第二十二条<br>《私募投资基金登记备案办法》第四十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 176,
+            issueDate: "2025年2月14日",
+            documentDate: "2024年12月13日",
+            documentNumber: "中基协处分〔2024〕553号<br>中基协处分〔2024〕554号<br>中基协处分〔2024〕555号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX私募基金管理（湖北）有限公司",
+            penaltyReason: "①向非合格投资者募集资金且人数超过法定上限<br>②向投资者承诺投资本金不受损失或者承诺最低收益<br>③未采取问卷调查等方式，对投资者的风险识别能力和风险承担能力进行评估<br>④利用基金财产或者职务之便，为本人或者投资者以外的人牟取利益，进行利益输送",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>马XX（合规风控负责人）：取消基金从业资格<br>牟X（法代、总经理）：取消基金从业资格",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十一条、第十四条、第十五条、第十六条、第二十三条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第二十二条、第三十九条、第四十条"
+        },
+        {
+            id: 177,
+            issueDate: "2025年2月14日",
+            documentDate: "2024年12月12日",
+            documentNumber: "中基协处分〔2024〕546号<br>中基协处分〔2024〕547号<br>中基协处分〔2024〕548号<br>中基协处分〔2024〕549号<br>中基协处分〔2024〕550号<br>中基协处分〔2024〕551号<br>中基协处分〔2024〕552号",
+            regulatoryAgency: "中基协",
+            managerName: "XX私募基金管理（杭州）有限公司",
+            penaltyReason: "①未谨慎勤勉履行管理人义务<br>②未严格落实投资者适当性审查要求<br>③向协会提供的材料不真实、不准确",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案三个月",
+            staffPenalty: "<br>丁X（法代、总经理）：公开谴责<br>胡XX（基金经理）：公开谴责<br>李XX（时任合规风控负责人）：公开谴责<br>刘XX（时任法代）：公开谴责<br>石XX（合规风控负责人）：公开谴责<br>杨XX（时任法代）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十二条、第十六条、第十七条<br>《私募投资基金管理人内部控制指引》第七条<br>《私募投资基金募集行为管理办法》第六条<br>《中国证券投资基金业协会自律检查规则》第二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 178,
+            issueDate: "2025年2月14日",
+            documentDate: "2025年1月22日",
+            documentNumber: "行政监管措施决定书〔2025〕22号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳市XX股权投资基金管理有限公司",
+            penaltyReason: "未独立开展投资决策，未履行谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 179,
+            issueDate: "2025年2月17日",
+            documentDate: "2025年1月27日",
+            documentNumber: "〔2025〕17号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广东XX投资管理有限公司",
+            penaltyReason: "①未按合同约定履行信息披露义务<br>②未及时更新管理人及从业人员信息<br>③未妥善保存投资者适当性文件<br>④未制定产品风险评级制度，未制定基金产品等级具体划分方法<br>⑤未建立关联交易管理制度",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第二十五条第一款、第二十六条、第三十三条<br>《证券期货投资者适当性管理办法》第二十九条第一款、第三十七条<br>《私募投资基金监督管理条例》第二十八条第一款、第四十条第二款"
+        },
+        {
+            id: 180,
+            issueDate: "2025年2月17日",
+            documentDate: "2025年2月06日",
+            documentNumber: "〔2025〕18号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广州XX私募证券投资基金管理有限公司",
+            penaltyReason: "①未按合同约定履行信息披露义务<br>②未按规定保存私募基金投资决策、交易和投资者适当性管理方面的相关资料<br>③投资者适当性调查程序不恰当<br>④未明确投资者分类、产品风险评级及适当性匹配的具体依据、方法、流程",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十四条、第二十六条、第三十三条<br>《证券期货投资者适当性管理办法》第六条第二项、第二十九条第一款、第三十七条"
+        },
+        {
+            id: 181,
+            issueDate: "2025年2月19日",
+            documentDate: "2025年1月21日",
+            documentNumber: "行政监管措施决定书〔2025〕21号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳前海XX私募证券基金管理有限公司",
+            penaltyReason: "未履行谨慎勤勉义务（管理的部分私募基金未按基金合同约定进行投资运作）",
+            managerPenalty: "警示函",
+            staffPenalty: "宋XX（基金经理、副总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项"
+        },
+        {
+            id: 182,
+            issueDate: "2025年2月21日",
+            documentDate: "2024年12月26日",
+            documentNumber: "中基协处分〔2024〕579号<br>中基协处分〔2024〕580号<br>中基协处分〔2024〕581号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XX资本股份有限公司",
+            penaltyReason: "①未按合同约定进行信息披露<br>②未及时更新登记信息<br>③未安全履行投资者适当性义务<br>④未向投资者披露可能影响投资者权益的重大事项",
+            managerPenalty: "取消会员资格，暂停受理其私募基金产品备案十二个月",
+            staffPenalty: "<br>李X（合规风控负责人）：公开谴责<br>刘X（法代）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十六条、第十七条、第二十三条第（七）项、第二十四条<br>《私募投资基金信息披露管理办法》第九条、第十六条、第十七条<br>《私募投资基金管理人登记和基金备案办法（试行）》第十五条、第二十一条<br>《私募投资基金登记备案办法》第四十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 183,
+            issueDate: "2025年2月21日",
+            documentDate: "2024年12月13日",
+            documentNumber: "中基协处分〔2024〕556号<br>中基协处分〔2024〕557号<br>中基协处分〔2024〕558号<br>中基协处分〔2024〕559号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "①管理未备案产品<br>②未及时更新登记信息<br>③未按合同约定进行信息披露<br>④未准确、完整提供检查所需材料",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案十二个月",
+            staffPenalty: "<br>陈XX（时任合规风控负责人）：警告<br>陈X（合规风控负责人）：公开谴责<br>余XX（法代）：公开谴责",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条<br>《私募投资基金登记备案办法》第四十七条第一项，第二项<br>《私募投资基金信息披露管理办法》第三条<br>《中国证券投资基金业协会自律检查规则》第二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 184,
+            issueDate: "2025年2月21日",
+            documentDate: "2024年12月13日",
+            documentNumber: "中基协处分〔2024〕560号<br>中基协处分〔2024〕561号<br>中基协处分〔2024〕562号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX资产管理有限公司",
+            penaltyReason: "未按照规定履行职责，未对基金宣传募集、投资运作等进行有效管理和控制",
+            managerPenalty: "公开谴责，暂停受理私募基金产品备案六个月",
+            staffPenalty: "<br>何XX（法代）：公开谴责<br>帖XX（合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第七项<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 185,
+            issueDate: "2025年2月21日",
+            documentDate: "2025年2月13日",
+            documentNumber: "行政监管措施决定书〔2025〕30号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "深圳XXXX投资管理有限公司",
+            penaltyReason: "①向外部人员让渡私募基金部分投资管理权限，未尽谨慎勤勉义务<br>②是未按照基金合同约定披露部分基金投资、资产负债以及可能影响投资者合法权益的重大信息<br>③未根据中国证券投资基金业协会的规定及时更新管理人的有关信息",
+            managerPenalty: "警示函",
+            staffPenalty: "张X（负责日常经营管理、信披等工作）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第二十四条、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 186,
+            issueDate: "2025年2月21日",
+            documentDate: "2025年2月19日",
+            documentNumber: "",
+            regulatoryAgency: "湖南监管局",
+            managerName: "湖南XXX投资管理有限公司",
+            penaltyReason: "①发行成立的基金产品“湖州赛福股权投资合伙企业（有限合伙）”未到中基协进行备案<br>②在中基协登记备案的信息不准确，登记备案的实际控制人、办公地址和从业人员信息均与实际情况不符<br>③投资者适当性管理不到位，未对基金产品进行风险评级<br>④内控管理不规范，总经理和合规风控负责人离职后，岗位一直处于空缺状态，存在风险隐患",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起60日内对问题进行整改并提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条、第十七条、第二十五条、第三十三条"
+        },
+        {
+            id: 187,
+            issueDate: "2025年2月24日",
+            documentDate: "2025年2月24日",
+            documentNumber: "〔2025〕2号<br>〔2025〕3号<br>〔2025〕4号<br>〔2025〕5号<br>〔2025〕6号",
+            regulatoryAgency: "海南监管局",
+            managerName: "海南XX私募基金管理有限公司",
+            penaltyReason: "①所提交的登记登记备案信息及其他信息材料存在虚假记载情形<br>②委托不具有基金销售业务资格的单位从事资金募集活动<br>③向非合格投资者募集资金",
+            managerPenalty: "公开谴责，并记入资本市场诚信档案数据库",
+            staffPenalty: "<br>鞠XX（副总经理）：公开谴责，并记入资本市场诚信档案数据库<br>冯X（合规风控负责人）：公开谴责，并记入资本市场诚信档案数据库<br>周X（总经理）：公开谴责，并记入资本市场诚信档案数据库<br>张XX（法代、董事长）：公开谴责，并记入资本市场诚信档案数据库",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第二款、第十二条、第十四条、第二十三条第九项、第二十五条第一款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第一项，第八项、第十二条第一款、第十三条第一款"
+        },
+        {
+            id: 188,
+            issueDate: "2025年1月3日",
+            documentDate: "2024年11月1日",
+            documentNumber: "中基协处分〔2024〕480号<br>中基协处分〔2024〕481号<br>中基协处分〔2024〕482号",
+            regulatoryAgency: "中基协",
+            managerName: "宁夏XXX资产管理有限公司",
+            penaltyReason: "未严格执行合格投资者确认程序的违规行为（公司关联方员工未进行合格投资者认定）",
+            managerPenalty: "警告",
+            staffPenalty: "<br>孙XX（法代、资经理）：警告<br>王XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金募集行为管理办法》第二十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 189,
+            issueDate: "2025年1月3日",
+            documentDate: "2024年10月16日",
+            documentNumber: "中基协处分〔2024〕458号<br>中基协处分〔2024〕459号<br>中基协处分〔2024〕460号<br>中基协处分〔2024〕461号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①办公场所不符合要求<br>②高级管理人员及从业人员不符合登记要求<br>③未按规定报告重大事项变更信息<br>④未妥善保存个别投资者适当性管理材料<br>⑤未充分履行谨慎勤勉义务<br>⑥投资者风险测评不规范<br>⑦未真实、准确、完整提供检查材料",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>刘X（时任法代）：公开谴责<br>杨XX（时任法代）：公开谴责<br>朱X（法代）：公开谴责",
+            legalBasis: "《私募基金管理人登记须知》办公场所独立性规定<br>《私募投资基金登记备案办法》第八条、第十条、第二十一条、第四十七条、第六十七条<br>《私募投资基金管理人登记和基金备案办法（试行）》第二十二条<br>《私募投资基金监督管理暂行办法》第四条、第二十六条<br>《证券期货投资者适当性管理办法》第三十二条<br>《基金募集机构投资者适当性管理实施指引（试行）》第二十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 190,
+            issueDate: "2025年1月3日",
+            documentDate: "2024年10月28日",
+            documentNumber: "中基协处分〔2024〕475号<br>中基协处分〔2024〕476号<br>中基协处分〔2024〕477号<br>中基协处分〔2024〕478号<br>中基协处分〔2024〕479号",
+            regulatoryAgency: "中基协",
+            managerName: "深圳市XX投资有限公司",
+            penaltyReason: "①未履行谨慎勤勉义务（未按合同约定进行投资运作、听取无管理权限人员交易指令执行）<br>②未按照基金合同约定向部分投资者披露基金投资以及可能影响投资者合法权益的重大信息",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案十二个月",
+            staffPenalty: "<br>范XX（合规风控负责人）：公开谴责<br>徐X（总经理、投资总监）：公开谴责<br>郑XX（法代）：公开谴责<br>周XX（投资副总监-负责案涉私募基金投资决策与信披工作）：公开谴责",
+            legalBasis: "《私募基金监管办法》第四条、第二十四条<br>《私募投资基金管理人内部控制指引》第八条、第二十条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项<br>《私募投资基金信息披露管理办法》第十八条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 191,
+            issueDate: "2025年1月3日",
+            documentDate: "2024年12月31日",
+            documentNumber: "〔2024〕322号",
+            regulatoryAgency: "北京监管局",
+            managerName: "北京XXXX资产管理有限公司",
+            penaltyReason: "①作为管理人管理运用私募基金财产，未能恪尽职守，履行诚实信用、谨慎勤勉的义务<br>②向投资者承诺本金不受损失和承诺收益<br>③将其他财产混同于基金财产从事投资活动<br>④将部分基金财产挪作他用",
+            managerPenalty: "警示函（收到决定之日起30日内提交书面整改报告，监管局择机对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条、第十五条、第二十三条第一项第四项"
+        },
+        {
+            id: 192,
+            issueDate: "2025年1月6日",
+            documentDate: "2025年1月3日",
+            documentNumber: "河南监管局行政监管措施决定书〔2025〕2号",
+            regulatoryAgency: "河南监管局",
+            managerName: "河南XX资产管理有限公司",
+            penaltyReason: "①合规风控负责人长期缺位，未认真履行谨慎勤勉义务<br>②未按照基金业协会的规定及时填报并更新管理人办公地址及从业人员的有关信息<br>③未妥善保存个别基金产品评级材料和部分投资者适当性管理相关资料",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定之日起30日内提交书面整改报告，监管局视情况对整改落实情况组织检查验收）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第二十六条、第三十三条"
+        },
+        {
+            id: 193,
+            issueDate: "2025年1月8日",
+            documentDate: "2025年1月7日",
+            documentNumber: "中国证券监督管理委员会安徽监管局行政监管措施决定书〔2025〕1号<br>中国证券监督管理委员会安徽监管局行政监管措施决定书〔2025〕2号",
+            regulatoryAgency: "安徽监管局",
+            managerName: "马鞍山XX投资管理合伙企业（有限合伙）",
+            penaltyReason: "①未严格履行投资者适当性管理义务，内部管理不规范<br>②未按规定填报所管理私募基金的投资运作情况<br>③未按照基金合同约定进行信息披露<br>④未按规定在中基协办理私募基金备案手续",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "吴XX（执行事务合伙人委派代表、董事总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第八条第一款、第二十四条、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 194,
+            issueDate: "2025年1月8日",
+            documentDate: "2025年1月7日",
+            documentNumber: "中国证券监督管理委员会安徽监管局行政监管措施决定书〔2025〕3号<br>中国证券监督管理委员会安徽监管局行政监管措施决定书〔2025〕4号",
+            regulatoryAgency: "安徽监管局",
+            managerName: "合肥XXXX私募股权投资基金管理有限公司",
+            penaltyReason: "①未及时填报和更新管理人相关信息<br>②未严格履行投资者适当性管理义务<br>③从事不符合规定的明股实债业务<br>④部分基金产品向投资者承诺最低收益",
+            managerPenalty: "责令改正，并记入证券期货市场诚信档案（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "孙XX（时任法代、董事长、总经理）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十五条、第二十三条第九项、第二十五条第一款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第八条"
+        },
+        {
+            id: 195,
+            issueDate: "2025年1月8日",
+            documentDate: "2025年1月8日",
+            documentNumber: "行政监管措施决定书〔2025〕13号",
+            regulatoryAgency: "贵州监管局",
+            managerName: "黔南州XXXX基金管理有限公司",
+            penaltyReason: "①无全职员工，与在中基协登记的员工人数不一致<br>②未及时更新登记信息，股东信息与中基协披露的信息不一致<br>③基金产品的投资决策、投后管理和投资者适当性档案缺失<br>④基金产品账户不独立<br>⑤未按要求披露信息",
+            managerPenalty: "警示函、并记入证券期货市场诚信档案（收到决定书之日起15个工作日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十五条第一款、第二十六条、第三十三条"
+        },
+        {
+            id: 196,
+            issueDate: "2025年1月8日",
+            documentDate: "2025年1月8日",
+            documentNumber: "行政监管措施决定书〔2025〕14号",
+            regulatoryAgency: "贵州监管局",
+            managerName: "贵州都匀市XX基金管理有限公司",
+            penaltyReason: "①无全职员工，与在中基协登记的员工人数不一致<br>②与投资者约定基金产品固定收益<br>③未出具基金产品的投后管理报告<br>④未按要求披露信息",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十五条、第二十五条第一款第三十三条"
+        },
+        {
+            id: 197,
+            issueDate: "2025年1月9日",
+            documentDate: "2025年1月9日",
+            documentNumber: "中国证券监督管理委员会上海监管局行政处罚决定书沪〔2025〕1号<br>中国证券监督管理委员会上海监管局行政处罚决定书沪〔2025〕2号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "①向投资者承诺保本保收益<br>②挪用基金财产<br>③未按照合同约定向投资者提供相关信息<br>④未按规定报送信息<br>⑤未如实提供有关文件和材料",
+            managerPenalty: "（综合五项，责令改正，给予警告，处13万元罚款）<br>①项 责令改正，给予警告，处3万元罚款<br>②项 责令改正，给予警告，处3万元罚款<br>③项 责令改正，给予警告，处3万元罚款<br>④项 责令改正，给予警告，处1万元罚款<br>⑤项 责令改正，给予警告，处3万元罚款",
+            staffPenalty: "<br>李XX（时任法代、董事长、实控人、信息填报负责人）：<br>（一）综合五项，给予警告，处13万元罚款<br>①项 给予警告，处3万元罚款<br>②项 给予警告，处3万元罚款<br>③项 给予警告，处3万元罚款<br>④项 给予警告，处1万元罚款<br>⑤项 给予警告，处3万元罚款<br>（二）10年证券市场禁入措施",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十五条、第二十三条第四项第九款、第二十四条、第二十五条第二款、第三十八条<br>《关于加强私募投资基金监管的若干规定》第十二条第二款"
+        },
+        {
+            id: 198,
+            issueDate: "2025年1月10日",
+            documentDate: "2024年11月8日",
+            documentNumber: "中基协处分〔2024〕483号<br>中基协处分〔2024〕484号<br>中基协处分〔2024〕485号",
+            regulatoryAgency: "中基协",
+            managerName: "XX创业投资管理（上海）有限公司",
+            penaltyReason: "①未按规定办理产品备案<br>②未及时向投资者披露重大关联交易事项<br>③内部控制制度未有效执行<br>④收入证明不符合合格投资者审查要求<br>⑤投资者风险承受能力类型划分不符合要求",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案六个月",
+            staffPenalty: "<br>白X（时任合规风控负责人）：公开谴责<br>李XX（法代）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条<br>《私募投资基金信息披露管理办法》第十八条第十一项<br>《私募投资基金管理人内部控制指引》第五条第三项<br>《私募投资基金募集行为管理办法》第二十八条<br>《基金募集机构投资者适当性管理实施指引（试行）》第二十六条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 199,
+            issueDate: "2025年1月10日",
+            documentDate: "2024年11月11日",
+            documentNumber: "中基协处分〔2024〕487号<br>中基协处分〔2024〕488号<br>中基协处分〔2024〕489号<br>中基协处分〔2024〕490号",
+            regulatoryAgency: "中基协",
+            managerName: "XX（上海）私募基金管理合伙企业（有限合伙）",
+            penaltyReason: "①未及时提交重大事项变更<br>②不符合私募基金管理人登记要求<br>③冷静期回访不规范<br>④投资者适当性管理不规范",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>陈XX（时任执行事务合伙人）：公开谴责<br>陈XX（时任合规风控负责人）：公开谴责<br>王X（时任合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金登记备案办法》第八条、第四十六条至第四十八条<br>《私募投资基金募集行为管理办法》第十一条、第二十九条、第三十条<br>《基金募集机构投资者适当性管理实施指引（试行）》第十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 200,
+            issueDate: "2025年1月10日",
+            documentDate: "2024年11月11日",
+            documentNumber: "中基协处分〔2024〕486号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①未及时提交重大事项变更<br>②不符合私募基金管理人登记要求<br>③未严格执行内部控制制度<br>④冷静期回访不规范<br>⑤未妥善保存投资者适当性管理材料<br>⑥聘用挂靠人员",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金登记备案办法》第八条、第二十一条、第四十六条至第四十八条<br>《私募投资基金管理人内部控制指引》第五条<br>《私募投资基金募集行为管理办法》第二十九条、第三十条<br>《基金募集机构投资者适当性管理实施指引（试行）》第十七条<br>《私募基金管理人登记指引3号——法定代表人、高级管理人员、执行事务合伙人或其委派代表》第十一条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 201,
+            issueDate: "2025年1月10日",
+            documentDate: "2025年1月9日",
+            documentNumber: "〔2025〕11号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "南京XX私募基金管理有限公司",
+            penaltyReason: "①未及时向中基协填报并更新管理人有关信息<br>②管理的部分私募基金募集完毕后，未根据中基协的规定办理基金备案手续<br>③未妥善保存私募基金募集、投资决策等相关资料",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条第一款、第二十五条第一款、第二十六条、第三十三条"
+        },
+        {
+            id: 202,
+            issueDate: "2025年1月10日",
+            documentDate: "2025年1月9日",
+            documentNumber: "〔2025〕10号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "江苏XXX私募基金管理有限公司",
+            penaltyReason: "①个别工作人员在取得从业资格证书之前向部分投资者开展营销业务和未对部分投资者进行回访情况<br>②部分投资者在购买盛世纪共同富裕7号私募证券投资基金产品时，未在《合格投资者承诺书》上签字<br>③未妥善保存盛世纪雪球王6号私募证券投资基金、盛世纪雪球系列8号私募证券投资基金2只产品的投资决策过程记录",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第十六条、第二十六条、第三十三条"
+        },
+        {
+            id: 203,
+            issueDate: "2025年1月13日",
+            documentDate: "2025年1月8日",
+            documentNumber: "〔2025〕8号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "",
+            penaltyReason: "",
+            managerPenalty: "",
+            staffPenalty: "黄XX（从业人员）：警示函（以个人账户收取投资者资金用于项目投资）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第二款、第三十三条"
+        },
+        {
+            id: 204,
+            issueDate: "2025年1月14日",
+            documentDate: "2025年1月3日",
+            documentNumber: "行政监管措施决定书〔2025〕1号<br>行政监管措施决定书〔2025〕2号",
+            regulatoryAgency: "深圳监管局",
+            managerName: "前海XXXX资本管理（深圳）有限公司",
+            penaltyReason: "①未尽谨慎勤勉义务（未按照基金合同约定进行投资运作）<br>②未按照合同约定如实向投资者披露可能影响投资者合法权益的重大信息<br>③未根据中基协规定及时填报并更新有关信息<br>④未妥善保存私募基金投资者适当性管理方面相关资料",
+            managerPenalty: "责令改正（收到决定书之日起20个工作日内提交整改报告）",
+            staffPenalty: "<br>李XX（从业人员）：警示函<br>王X（从业人员）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第四条第二款、第二十四条、第二十五条、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项"
+        },
+        {
+            id: 205,
+            issueDate: "2025年1月15日",
+            documentDate: "2025年01月9日",
+            documentNumber: "〔2025〕8号",
+            regulatoryAgency: "广东监管局",
+            managerName: "珠海横琴XX股权投资基金管理有限公司",
+            penaltyReason: "①产品募集过程中向投资者承诺最低收益<br>②未及时更新管理人有关信息<br>③未验证投资者资产收入证明文件",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第十五条、第二十五条、第三十三条<br>《证券期货投资者适当性管理办法》第六条第二项、第三十七条"
+        },
+        {
+            id: 206,
+            issueDate: "2025年1月17日",
+            documentDate: "2024年11月11日",
+            documentNumber: "中基协处分〔2024〕495号<br>中基协处分〔2024〕496号<br>中基协处分〔2024〕497号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX（北京）投资管理有限公司",
+            penaltyReason: "①产品备案信息与实际不符<br>②未及时向协会报告登记信息变更情况",
+            managerPenalty: "警告",
+            staffPenalty: "<br>张X（法代、总经理）：警告<br>邹XX（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金管理人登记和基金备案办法（试行）》第四条、第二十一条<br>《私募投资基金管理人内部控制指引》第二十五条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 207,
+            issueDate: "2025年1月17日",
+            documentDate: "2025年1月17日",
+            documentNumber: "沪证监决〔2025〕20号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①未切实履行有效管理职责，未尽谨慎勤勉义务",
+            managerPenalty: "警示函",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第三十三条"
+        },
+        {
+            id: 208,
+            issueDate: "2025年1月17日",
+            documentDate: "2024年11月11日",
+            documentNumber: "中基协处分〔2024〕491号<br>中基协处分〔2024〕492号<br>中基协处分〔2024〕493号<br>中基协处分〔2024〕494号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①未及时提交重大事项变更<br>②冷静期回访不规范",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案三个月",
+            staffPenalty: "<br>安X（时任法代）：警告<br>黄XX（时任合规风控负责人）：警告<br>梁XX（法代）：警告",
+            legalBasis: "《私募投资基金管理人登记和基金备案办法（试行）》第二十二条、<br>《私募投资基金登记备案办法》第四十七条<br>《私募投资基金募集行为管理办法》第二十九条、第三十条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 209,
+            issueDate: "2025年1月17日",
+            documentDate: "2024年11月14日",
+            documentNumber: "中基协处分〔2024〕498号<br>中基协处分〔2024〕499号<br>中基协处分〔2024〕500号<br>中基协处分〔2024〕501号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "①推介材料存在误导性陈述<br>②未合理审慎确认合格投资者<br>③投资者适当性管理不符合规定<br>④未按规定进行信息披露<br>⑤违反合同约定投资运作<br>⑥从事与私募基金无关的业务",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案十二个月",
+            staffPenalty: "<br>陈X（量化交易部基金经理）：警告<br>薛XX（合规风控负责人）：公开谴责<br>张XX（法代）：公开谴责",
+            legalBasis: "《私募投资基金募集行为管理办法》第二十四条第二项、第二十七条<br>《基金募集机构投资者适当性管理实施指引（试行）》第四十八条<br>《私募投资基金信息披露管理办法》第十八条<br>《关于加强私募投资基金监管的若干规定》第九条第一款第八项<br>《私募投资基金管理人内部控制指引》第八条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 210,
+            issueDate: "2025年1月21日",
+            documentDate: "2025年1月16日",
+            documentNumber: "",
+            regulatoryAgency: "浙江监管局",
+            managerName: "杭州XX私募基金管理有限公司",
+            penaltyReason: "①未按合同约定履行信息披露义务<br>②未勤勉谨慎履行管理人职责（内控不规范）",
+            managerPenalty: "警示函、并记入证券期货市场诚信档案（收到决定书之日起7日内提交书面整改报告）",
+            staffPenalty: "<br>沈XX（时任法代、总经理）：警示函，并记入证券期货市场诚信档案<br>（收到决定书之日起7日内提交书面整改报告）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第四条第二款、第二十四条、第三十三条"
+        },
+        {
+            id: 211,
+            issueDate: "2025年1月23日",
+            documentDate: "2025年1月23日",
+            documentNumber: "沪证监决〔2025〕38号",
+            regulatoryAgency: "上海监管局",
+            managerName: "上海XX私募基金管理有限公司",
+            penaltyReason: "①未履行诚实信用、谨慎勤勉义务，导致基金发生异常交易<br>②委托不具有基金销售业务资格的单位或个人从事资金募集活动",
+            managerPenalty: "责令改正（2025年3月31日前予以改正并提交书面报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第九项、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第八项"
+        },
+        {
+            id: 212,
+            issueDate: "2025年1月23日",
+            documentDate: "2025年1月17日",
+            documentNumber: "〔2025〕10号<br>〔2025〕11号",
+            regulatoryAgency: "广东监管局",
+            managerName: "珠海XXXX投资基金管理有限公司",
+            penaltyReason: "①未谨慎勤勉履行管理人职责（将部分基金投资管理职责委托他人行使）<br>②未按规定向投资者进行信息披露<br>③委托不具有基金销售业务资格的个人从事资金募集活动",
+            managerPenalty: "警示函（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "黄XX（法代、总经理）：警示函",
+            legalBasis: "《私募投资基金监督管理条例》第二十七条第一款、第四十条第二款<br>《私募投资基金监督管理暂行办法》第四条第一款、第二十三条第九项、第二十四条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第八项、第十三条第一款"
+        },
+        {
+            id: 213,
+            issueDate: "2025年1月24日",
+            documentDate: "2024年12月10日",
+            documentNumber: "中基协处分〔2024〕532号<br>中基协处分〔2024〕533号<br>中基协处分〔2024〕534号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资管理有限公司",
+            penaltyReason: "从事与私募基金无关或相冲突业务。接受投资人指示下单交易，未提交相应投资投决文件",
+            managerPenalty: "公开谴责",
+            staffPenalty: "<br>李XX（合规风控负责人）：公开谴责<br>张X（时任法代）：公开谴责",
+            legalBasis: "《私募投资基金管理人内部控制指引》第八条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 214,
+            issueDate: "2025年1月24日",
+            documentDate: "2024年12月2日",
+            documentNumber: "中基协处分〔2024〕502号<br>中基协处分〔2024〕503号<br>中基协处分〔2024〕504号<br>中基协处分〔2024〕505号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XX私募基金管理有限公司",
+            penaltyReason: "①未及时提交部分私募基金产品的备案申请<br>②未向投资者披露管理人取得的管理费<br>③未真实、准确、完整、及时提供检查所需材料和信息<br>④高级管理人员登记信息与事实不符",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案二十四个月",
+            staffPenalty: "<br>刘XX（时任挂职合规风控负责人）：警告<br>曲XX（合规风控负责人）：公开谴责<br>汪XX（法代）：公开谴责",
+            legalBasis: "《私募投资基金监督管理暂行办法》第八条、第二十四条<br>《关于加强私募投资基金监管的若干规定》第六条<br>《私募投资基金管理人登记和基金备案办法（试行）》第四条、第十一条<br>《私募投资基金信息披露管理办法》第十七条第六项<br>《中国证券投资基金业协会自律检查规则》第二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 215,
+            issueDate: "2025年1月24日",
+            documentDate: "2024年12月2日",
+            documentNumber: "中基协处分〔2024〕506号<br>中基协处分〔2024〕507号<br>中基协处分〔2024〕508号<br>中基协处分〔2024〕509号<br>中基协处分〔2024〕510号<br>中基协处分〔2024〕511号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XX资产管理有限公司",
+            penaltyReason: "①未履行特定对象确认程序<br>②承诺投资本金不受损失<br>③不符合私募基金管理人登记要求",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>杜XX（时任合规风控负责人）：警告<br>范XX（法代）：取消基金从业资格，加入黑名单、期限五年<br>范XX（从业人员-参与运营）：取消基金从业资格，加入黑名单、期限五年<br>蒋XX（时任合规风控负责人）：警告<br>祁X（时任合规风控负责人）：警告",
+            legalBasis: "《私募投资基金募集行为管理办法》第十七条<br>《私募投资基金监督管理暂行办法》第十五条<br>《私募投资基金登记备案办法》第二十一条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 216,
+            issueDate: "2025年1月24日",
+            documentDate: "2024年12月2日",
+            documentNumber: "中基协处分〔2024〕512号<br>中基协处分〔2024〕513号<br>中基协处分〔2024〕514号<br>中基协处分〔2024〕515号",
+            regulatoryAgency: "中基协",
+            managerName: "杭州XX投资管理有限公司",
+            penaltyReason: "①提供虚假登记备案信息<br>②利用基金财产牟利<br>③未按规定妥善保管材料<br>④投资者风险测评不符合要求",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>葛XX（时任基金经理）：警告<br>张X（法代）：公开谴责<br>赵X（合规风控负责人）：公开谴责",
+            legalBasis: "《私募投资基金管理人登记和基金备案办法（试行）》第四条<br>《私募投资基金监督管理暂行办法》第二十三条<br>《关于加强私募投资基金监管的若干规定》第九条<br>《私募投资基金募集行为管理办法》第十一条<br>《基金募集机构投资者适当性实施指引（试行）》第十七条、二十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 217,
+            issueDate: "2025年1月24日",
+            documentDate: "2024年12月4日",
+            documentNumber: "中基协处分〔2024〕524号<br>中基协处分〔2024〕525号<br>中基协处分〔2024〕526号<br>中基协处分〔2024〕527号",
+            regulatoryAgency: "中基协",
+            managerName: "深圳市XXX私募证券基金管理有限公司",
+            penaltyReason: "①未妥善保存私募基金相关资料<br>②未按规定履行募集程序",
+            managerPenalty: "公开谴责",
+            staffPenalty: "<br>陈XX（法代、总经理）：警告<br>方XX（时任法代）警告<br>李X（合规风控负责人）：警告",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十六条<br>《私募投资基金募集行为管理办法》第二十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 218,
+            issueDate: "2025年1月26日",
+            documentDate: "2025年1月26日",
+            documentNumber: "〔2025〕30号",
+            regulatoryAgency: "江苏监管局",
+            managerName: "江苏XX私募基金管理有限公司",
+            penaltyReason: "从业人员违规情形<br>①为不合格投资者提供提供满足合格投资者要求的便利<br>②使用夸大表述宣传私募基金",
+            managerPenalty: "",
+            staffPenalty: "梁XX（从业人员）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第二款、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第一四项"
+        },
+        {
+            id: 219,
+            issueDate: "2025年1月27日",
+            documentDate: "2025年1月20日",
+            documentNumber: "〔2025〕9号<br>〔2025〕10号",
+            regulatoryAgency: "四川监管局",
+            managerName: "成都XXXXX股权投资基金管理有限公司",
+            penaltyReason: "①未建立从业人员投资申报、登记、审查、处置等管理制度<br>②未认真履行谨慎勤勉义务（未规范履行投资者适当性格管理义务、部分投资未签订投资协议、未按合同约定披露季报）<br>③未按规定及时填报更新从业人员信息",
+            managerPenalty: "警示函，并记入证券期货市场诚信档案（收到决定书之日起30日内完成整改并提交书面整改报告）",
+            staffPenalty: "梁X（法代、总经理、执行董事）：警示函，并记入证券期货市场诚信档案",
+            legalBasis: "《私募投资基金监督管理条例》第二十六条第二款、第四十条第二款<br>《私募投资基金监督管理暂行办法》第四条第一款、第四条第二款、第二十五条第一款、第三十三条"
+        },
+        {
+            id: 220,
+            issueDate: "2025年1月27日",
+            documentDate: "2024年7月24日",
+            documentNumber: "中基协处分〔2024〕350号<br>中基协处分〔2024〕351号<br>中基协处分〔2024〕352号<br>中基协处分〔2024〕353号<br>中基协处分〔2024〕354号",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX资产管理有限公司",
+            penaltyReason: "①利用基金财产牟利<br>②从事与私募基金管理相冲突或无关业务",
+            managerPenalty: "取消会员资格、暂停受理其私募基金产品备案十二个月",
+            staffPenalty: "<br>高X（时任合规风控负责人）：公开谴责<br>金XX（合规风控负责人）：警告<br>罗XX（时任法代）：公开谴责<br>吴XX（时任合规风控负责人）：警告",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第三项<br>《私募投资基金管理人内部控制指引》第八条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第四十条"
+        },
+        {
+            id: 221,
+            issueDate: "2025年1月27日",
+            documentDate: "2024年06月20日",
+            documentNumber: "中基协处分〔2024〕306号<br>中基协处分〔2024〕307号<br>中基协处分〔2024〕308号<br>中基协处分〔2024〕309号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XXXX基金管理有限公司",
+            penaltyReason: "①经营管理失控（无租赁办公场所、无高管/从业人员）<br>②未能恪尽职守，未履行诚实信用、谨慎勤勉义务<br>③登记备案信息与实际不符<br>④未按规定履行信息披露义务<br>⑤登记信息更新不及时",
+            managerPenalty: "撤销管理人登记",
+            staffPenalty: "<br>李XX（时任“挂名”合规风控负责人）：公开谴责<br>马X（时任“挂名”合规风控负责人）：公开谴责<br>王X（时任“挂名”法代、总经理）：公开谴责",
+            legalBasis: "《私募投资基金登记备案办法》第二十一条<br>《私募基金管理人登记指引第1号—基本经营要求》第八条、第九条、第十条<br>《私募投资基金监督管理暂行办法》第四条、第二十三条第七项、第二十四条、第二十五条<br>《私募投资基金管理人内部控制指引》第四条第三项<br>《私募投资基金管理人登记和基金备案办法（试行）》第四条、第二十一条、第二十二条<br>《私募投资基金信息披露管理办法》第九条、第十五条、第十六条、第十七条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 222,
+            issueDate: "2025年1月27日",
+            documentDate: "2024年9月18日",
+            documentNumber: "中基协处分〔2024〕428号<br>中基协处分〔2024〕429号<br>中基协处分〔2024〕430号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXX（深圳）资产管理有限公司",
+            penaltyReason: "①管理未备案的私募基金<br>②兼营与私募基金管理无关或存在利益冲突的其他业务<br>③未真实、准确、完整、及时地提供检查所需材料",
+            managerPenalty: "取消会员资格、撤销管理人登记",
+            staffPenalty: "<br>何XX（合规风控负责人）：公开谴责<br>刘XX（法代）：公开谴责",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第六条、第十四条<br>《私募投资基金管理人内部控制指引》第八条<br>《中国证券投资基金业协会自律检查规则》第二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 223,
+            issueDate: "2025年1月27日",
+            documentDate: "2024年6月20日;2025年1月3日",
+            documentNumber: "中基协处分〔2024〕310号<br>中基协处分〔2024〕311号<br>中基协处分〔2024〕312号<br>中基协处分〔2024〕313号<br>中基协处分〔2024〕314号<br>中基协复核〔2025〕1号<br>中基协复核〔2025〕2号<br>中基协复核〔2025〕3号<br>中基协复核〔2025〕4号",
+            regulatoryAgency: "中基协",
+            managerName: "XXXXXX管理有限公司",
+            penaltyReason: "①从事与私募基金管理相冲突或无关业务<br>②未按规定及约定进行信息披露<br>③部分私募基金产品募集完毕后未及时进行备案",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案六个月",
+            staffPenalty: "<br>张XX（时任法代）：公开谴责（复核维持）<br>高XX（时任法代）：公开谴责（复核维持）<br>孙XX（时任合规风控负责人）：公开谴责（复核处分变更为警告）-复核2025 4号<br>许XX（法代）：公开谴责（复核维持）",
+            legalBasis: "《关于加强私募投资基金监管的若干规定》第四条<br>《私募投资基金监督管理暂行办法》第二十四条<br>《私募投资基金信息披露管理办法》第十八条<br>《私募投资基金管理人登记和基金备案办法（试行）》第十一条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 224,
+            issueDate: "2025年1月27日",
+            documentDate: "2024年12月4日",
+            documentNumber: "中基协处分〔2024〕528号<br>中基协处分〔2024〕529号<br>中基协处分〔2024〕530号<br>中基协处分〔2024〕531号",
+            regulatoryAgency: "中基协",
+            managerName: "北京XXXX投资有限公司",
+            penaltyReason: "①未适当履行信息披露义务<br>②向协会报送信息不真实、不准确",
+            managerPenalty: "公开谴责",
+            staffPenalty: "<br>骆XX（合规风控负责人）：警告<br>姚XX（法代、总经理）：公开谴责<br>朱XX（时任合规风控负责人）：警告",
+            legalBasis: "《私募投资基金信息披露管理办法》第三条<br>《私募投资基金登记备案办法》第四条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 225,
+            issueDate: "2025年1月27日",
+            documentDate: "2024年12月4日",
+            documentNumber: "中基协处分〔2024〕520号<br>中基协处分〔2024〕521号<br>中基协处分〔2024〕522号<br>中基协处分〔2024〕523号",
+            regulatoryAgency: "中基协",
+            managerName: "深圳XX私募证券基金管理有限公司",
+            penaltyReason: "①未建立与实施有效的内部控制<br>②未及时向协会报告重大事项",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案三个月",
+            staffPenalty: "<br>黄XX（法代、总经理）：公开谴责<br>欧XXX（合规风控负责人）：公开谴责<br>周X（实控人）：公开谴责",
+            legalBasis: "《私募投资基金管理人内部控制指引》第四条、第六条、第九条<br>《私募投资基金管理人登记和基金备案办法（试行）》第二十二条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 226,
+            issueDate: "2025年1月27日",
+            documentDate: "2025年01月12日",
+            documentNumber: "中基协复核〔2025〕5号<br>中基协复核〔2025〕6号<br>中基协复核〔2025〕7号<br>原决定书（中基协处分〔2024〕466号）",
+            regulatoryAgency: "中基协",
+            managerName: "上海XX投资管理有限公司（复核决定书，维持）",
+            penaltyReason: "①未尽谨慎勤勉义务（未谨慎核实投资者与投资标的的关联关系）<br>②利用自有资金或介绍外部资金参与债券发行认购或交易从而获得服务费、推介费<br>③委托不具有基金销售业务资格的单位和个人从事资金募集活动",
+            managerPenalty: "公开谴责、暂停受理其私募基金产品备案六个月",
+            staffPenalty: "<br>段X（合规风控负责人）：公开谴责（复核维持）<br>庄X（法代）：公开谴责（复核维持）",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条<br>《关于加强私募投资基金监管的若干规定》第四条、第六条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第二十二条、第四十三条<br>《中国证券投资基金业协会自律管理和纪律处分措施实施办法》第三十九条、第四十条"
+        },
+        {
+            id: 227,
+            issueDate: "2025年1月27日",
+            documentDate: "2025年1月22日",
+            documentNumber: "〔2025〕12号",
+            regulatoryAgency: "广东监管局",
+            managerName: "广东XX投资有限公司",
+            penaltyReason: "①未建立关联交易管理制度<br>②未制定适当性内部管理制度<br>③个别私募基金产品的管理人发生变更，未按规定填报更新信息<br>④个别私募基金产品未按规定在中基协备案<br>⑤公司发行和管理的个别私募基金产品存在员工代持，且未就代持人员是否为合格投资者进行核查",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理条例》第二十八条第一款、第四十条第二款<br>《私募投资基金监督管理暂行办法》第八条第一款、第十一条、第二十五条第一款、第三十三条<br>《证券期货投资者适当性管理办法》第二十九条第一款、第三十七条"
+        },
+        {
+            id: 228,
+            issueDate: "2025年3月5日",
+            documentDate: "2025年2月24日",
+            documentNumber: "监管措施〔2025〕3号",
+            regulatoryAgency: "黑龙江监管局",
+            managerName: "哈尔滨市XX投资管理有限责任公司",
+            penaltyReason: "①未及时更新法定代表人信息<br>②公司专职人员仅3人",
+            managerPenalty: "责令改正（收到决定书之日起30日内提交书面整改报告）",
+            staffPenalty: "",
+            legalBasis: "《私募投资基金监督管理暂行办法》第四条第一款第二款、第二十五条第一款、第三十三条<br>《私募投资基金登记备案办法》第八条"
+        },
+        {
+            id: 229,
+            issueDate: "2025年4月30日",
+            documentDate: "2025年4月22日",
+            documentNumber: "〔2025〕45号<br>〔2025〕46号",
+            regulatoryAgency: "广东监管局",
+            managerName: "东莞市XX资产管理有限公司",
+            penaltyReason: "①委托不具备基金销售资格的单位从事资金募集活动<br>②未按规定向投资者进行信息披露<br>③未妥善保存私募基金投资决策、交易和投资者适当性管理等方面的记录及其他相关资料",
+            managerPenalty: "警示函（收到决定书30日内提交书面整改报告）",
+            staffPenalty: "刘XX（合规风控负责人）：警示函",
+            legalBasis: "《私募投资基金监督管理暂行办法》第二十三条第九项、第二十四条、第二十六条、第三十三条<br>《关于加强私募投资基金监管的若干规定》第六条第一款第八项、第十三条第一款"
+        },
+        {
+            id: 230,
+            issueDate: "2025年7月22日",
+            documentDate: "2025年7月22日",
+            documentNumber: "〔2025〕54号",
+            regulatoryAgency: "湖北监管局",
+            managerName: "武汉XX私募基金管理有限公司",
+            penaltyReason: "提交的材料存在虚假记载",
+            managerPenalty: "警示函",
+            staffPenalty: "张XX（法代、总经理、信披负责人）：警示函",
+            legalBasis: "《私募投资基金监督管理条例》第三十二条第一项<br>《私募投资基金监督管理暂行办法》第二十三条第九项、第三十三条<br>《关于加强私募投资基金监管的若干规定》第十二条第一款"
+        },
+        {
+            id: 231,
+            issueDate: "2025年7月3日",
+            documentDate: "2025年6月26日",
+            documentNumber: "〔2025〕6号",
+            regulatoryAgency: "北京监管局",
+            managerName: "XX投资管理有限公司",
+            penaltyReason: "①将他人财产混同于基金财产从事投资活动<br>②挪用基金财产<br>③委托不具有基金托管人资格的机构担任基金托管人（委托不具有托管人资格的青X银行股份有限公司担任托管人）",
+            managerPenalty: "",
+            staffPenalty: "赫X（时任法代、“挂名”经理）：警告，共处9万元罚款，并对其采取终身市场进入措施",
+            legalBasis: "《私募投资基金监督管理条例》第三十二条第一项<br>《私募投资基金监督管理暂行办法》第二十三条第九项、第三十三条<br>《关于加强私募投资基金监管的若干规定》第十二条第一款"
+        },
+        {
+            id: 232,
+            issueDate: "2025年7月4日",
+            documentDate: "2025年6月24日",
+            documentNumber: "湖南监管局行政处罚决定书〔2025〕9号；湖南监管局行政处罚决定书〔2025〕10号",
+            regulatoryAgency: "湖南监管局",
+            managerName: "上海XX投资有限公司（已注销）",
+            penaltyReason: "上海XX投资有限公司在2022年4月6日至4月29日期间，利用内幕信息进行交易。公司董事长、法代在敏感期内与内幕信息知情人联络，管理的私募基金账户组卖出股票避损金额达941.23万元，交易与内幕信息高度吻合且明显异常",
+            managerPenalty: "<br>①没收违法所得：9,412,310.83元；<br>②罚款：违法所得三倍，计28,236,932.49元；执行要求：15日内汇交国库，提交付款凭证备案",
+            staffPenalty: "陈XX（董事长、法代）：警告，并处60万元罚款",
+            legalBasis: "《中华人民共和国证券法》第五十条、第五十三条第一款、一百九十一条第一款"
+        },
+    ];
+
+        const casesBody = document.getElementById('cases-body');
+        const mobileCasesContainer = document.getElementById('mobile-cases-container');
+        const caseDetailsContainer = document.getElementById('case-details-container');
+        const paginationEl = document.getElementById('pagination');
+        const monthFilter = document.getElementById('month-filter');
+        const searchInput = document.getElementById('search-input');
+        const regulatoryFilter = document.getElementById('regulatory-filter');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const startDate = document.getElementById('start-date');
+        const endDate = document.getElementById('end-date');
+        const statsContainer = document.getElementById('stats-container');
+        const watermarkContainer = document.getElementById('watermark-container');
+
+        let currentPage = 1;
+        const itemsPerPage = 6;
+        let filteredCases = [];
+        let selectedCaseId = null;
+        let isInitialLoad = true;
+
+        function getUniqueMonthsFromCases() {
+            const monthSet = new Set();
+            
+            penaltyCases.forEach(caseItem => {
+                const dateStr = caseItem.issueDate;
+                const monthMatch = dateStr.match(/(\d{4}年\d{1,2})月/);
+                if (monthMatch) {
+                    const monthStr = monthMatch[1];
+                    monthSet.add(monthStr);
+                }
+            });
+            
+            return Array.from(monthSet).sort((a, b) => {
+                const dateA = new Date(a.replace('年', '-') + '-01');
+                const dateB = new Date(b.replace('年', '-') + '-01');
+                return dateB - dateA;
+            });
+        }
+
+        function populateMonthFilter() {
+            while (monthFilter.options.length > 1) {
+                monthFilter.remove(1);
+            }
+            
+            const uniqueMonths = getUniqueMonthsFromCases();
+            
+            uniqueMonths.forEach(month => {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month + '月';
+                monthFilter.appendChild(option);
+            });
+            
+            const currentMonth = monthFilter.value;
+            if (currentMonth !== 'all' && !uniqueMonths.includes(currentMonth)) {
+                monthFilter.value = 'all';
+            }
+        }
+
+        function parseChineseDate(dateStr) {
+            const match = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+            if (match) {
+                const year = parseInt(match[1], 10);
+                const month = parseInt(match[2], 10) - 1;
+                const day = parseInt(match[3], 10);
+                return new Date(year, month, day);
+            } else {
+                return new Date(1970, 0, 1);
+            }
+        }
+        
+        function parseChineseDateToStandard(dateStr) {
+            const match = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+            if (match) {
+                const year = match[1];
+                const month = match[2].padStart(2, '0');
+                const day = match[3].padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            return null;
+        }
+
+        function createWatermark() {
+            watermarkContainer.innerHTML = '';
+            
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            const stepX = 200;
+            const stepY = 200;
+            
+            const countX = Math.ceil(width / stepX) + 1;
+            const countY = Math.ceil(height / stepY) + 1;
+            
+            for (let i = 0; i < countX; i++) {
+                for (let j = 0; j < countY; j++) {
+                    const watermark = document.createElement('div');
+                    watermark.className = 'watermark';
+                    watermark.textContent = '判理社';
+                    
+                    const offsetX = Math.random() * 40 - 20;
+                    const offsetY = Math.random() * 40 - 20;
+                    
+                    watermark.style.left = `${i * stepX + offsetX}px`;
+                    watermark.style.top = `${j * stepY + offsetY}px`;
+                    watermark.style.opacity = `${0.8 + Math.random() * 0.1}`;
+                    
+                    watermarkContainer.appendChild(watermark);
+                }
+            }
+        }
+
+        function disableCopy() {
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+                e.preventDefault();
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                        return;
+                    }
+                    e.preventDefault();
+                    alert('内容保护：禁止复制本页面内容');
+                }
+            });
+            
+            document.addEventListener('selectstart', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+                e.preventDefault();
+            });
+        }
+
+        function init() {
+            populateMonthFilter();
+            createWatermark();
+            disableCopy();
+            
+            monthFilter.addEventListener('change', filterCases);
+            searchInput.addEventListener('input', filterCases);
+            regulatoryFilter.addEventListener('change', filterCases);
+            analyzeBtn.addEventListener('click', analyzeCases);
+            window.addEventListener('resize', createWatermark);
+            
+            renderCases();
+            renderPagination();
+            analyzeCases();
+        }
+
+        function filterCases() {
+            const month = monthFilter.value;
+            const searchTerm = searchInput.value.toLowerCase();
+            const regulatory = regulatoryFilter.value;
+            
+            if (isInitialLoad && month === 'all' && regulatory === 'all' && searchTerm === '') {
+                filteredCases = [];
+            } else {
+                isInitialLoad = false;
+                filteredCases = penaltyCases.filter(caseItem => {
+                    if (month !== 'all') {
+                        if (!caseItem.issueDate.includes(month)) {
+                            return false;
+                        }
+                    }
+                    
+                    if (regulatory !== 'all' && caseItem.regulatoryAgency !== regulatory) {
+                        return false;
+                    }
+                    
+                    if (searchTerm) {
+                        const searchFields = [
+                            caseItem.managerName,
+                            caseItem.regulatoryAgency,
+                            caseItem.penaltyReason,
+                            caseItem.staffPenalty,
+                            caseItem.legalBasis,
+                            caseItem.managerPenalty
+                        ].join(' ').toLowerCase();
+                        
+                        if (!searchFields.includes(searchTerm)) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                filteredCases.sort((a, b) => {
+                    const dateA = parseChineseDate(a.issueDate);
+                    const dateB = parseChineseDate(b.issueDate);
+                    return dateA - dateB;
+                });
+            }
+            
+            currentPage = 1;
+            renderCases();
+            renderPagination();
+        }
+
+        function renderCases() {
+            casesBody.innerHTML = '';
+            mobileCasesContainer.innerHTML = '';
+            
+            if (filteredCases.length === 0) {
+                if (isInitialLoad) {
+                    caseDetailsContainer.innerHTML = `
+                        <div class="initial-hint">
+                            <i class="fas fa-search"></i>
+                            <p>请使用筛选条件或输入关键词搜索监管案例</p>
+                        </div>
+                    `;
+                } else {
+                    casesBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="no-results">没有找到匹配的监管案例</td>
+                        </tr>
+                    `;
+                    mobileCasesContainer.innerHTML = `
+                        <div class="no-results">没有找到匹配的监管案例</div>
+                    `;
+                    caseDetailsContainer.innerHTML = '';
+                }
+                return;
+            }
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedCases = filteredCases.slice(startIndex, startIndex + itemsPerPage);
+            
+            paginatedCases.forEach((caseItem, index) => {
+                const sequenceNumber = startIndex + index + 1;
+                
+                const row = document.createElement('tr');
+                row.dataset.id = caseItem.id;
+                row.innerHTML = `
+                    <td>${sequenceNumber}</td>
+                    <td class="date-cell">${caseItem.issueDate}</td>
+                    <td>${highlightSearchTerm(caseItem.regulatoryAgency)}</td>
+                    <td>${highlightSearchTerm(caseItem.managerPenalty)}</td>
+                    <td class="penalty-reason-cell">${truncateText(caseItem.penaltyReason, 100)}</td>
+                `;
+                
+                row.addEventListener('click', () => showCaseDetails(caseItem.id));
+                
+                if (selectedCaseId === caseItem.id) {
+                    row.style.backgroundColor = '#ebf8ff';
+                }
+                
+                casesBody.appendChild(row);
+            });
+            
+            paginatedCases.forEach((caseItem, index) => {
+                const sequenceNumber = startIndex + index + 1;
+                
+                const card = document.createElement('div');
+                card.className = 'mobile-case-card';
+                card.dataset.id = caseItem.id;
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-item">
+                            <div class="card-label">序号</div>
+                            <div class="card-value">${sequenceNumber}</div>
+                        </div>
+                        <div class="card-item">
+                            <div class="card-label">发文日期</div>
+                            <div class="card-value">${caseItem.issueDate}</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <div class="card-label">监管机构</div>
+                            <div class="card-value">${highlightSearchTerm(caseItem.regulatoryAgency)}</div>
+                        </div>
+                        <div class="card-item">
+                            <div class="card-label">处罚措施</div>
+                            <div class="card-value">${highlightSearchTerm(caseItem.managerPenalty)}</div>
+                        </div>
+                        <div class="card-item penalty-reason-mobile">
+                            <div class="card-label">处罚原因</div>
+                            <div class="card-value">${truncateText(caseItem.penaltyReason, 100)}</div>
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => showCaseDetails(caseItem.id));
+                
+                if (selectedCaseId === caseItem.id) {
+                    card.style.borderLeftColor = '#2c5282';
+                    card.style.backgroundColor = '#f0f7ff';
+                }
+                
+                mobileCasesContainer.appendChild(card);
+            });
+            
+            if (selectedCaseId) {
+                showCaseDetails(selectedCaseId);
+            } else if (filteredCases.length > 0) {
+                showCaseDetails(paginatedCases[0].id);
+            }
+            
+            renderPagination();
+        }
+
+        function highlightSearchTerm(text) {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            if (!searchTerm) return text;
+            
+            const regex = new RegExp(searchTerm, 'gi');
+            return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function showCaseDetails(caseId) {
+            selectedCaseId = caseId;
+            const caseItem = penaltyCases.find(c => c.id === caseId);
+            
+            if (!caseItem) return;
+            
+            caseDetailsContainer.innerHTML = `
+                <div class="case-details">
+                    <h4>${caseItem.managerName} - 处罚详情</h4>
+                    
+                    <div class="detail-section">
+                        <div class="detail-title">
+                            <i class="fas fa-file-alt"></i>文书信息
+                        </div>
+                        <div class="detail-content">
+                            <p><strong>发文日期：</strong> ${caseItem.issueDate}</p>
+                            <p><strong>文书日期：</strong> ${caseItem.documentDate}</p>
+                            <p><strong>文号：</strong> ${caseItem.documentNumber}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-title">
+                            <i class="fas fa-gavel"></i>处罚措施
+                        </div>
+                        <div class="detail-content">
+                            <p><strong>管理人：</strong> ${caseItem.managerPenalty|| '无'}</p>
+                            <p><strong>从业人员：</strong> ${caseItem.staffPenalty || '无'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-title">
+                            <i class="fas fa-search"></i>处罚原因
+                        </div>
+                        <div class="detail-content">
+                            <p>${caseItem.penaltyReason}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-title">
+                            <i class="fas fa-balance-scale"></i>法律依据
+                        </div>
+                        <div class="detail-content">
+                            <p>${caseItem.legalBasis}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.querySelectorAll('#cases-body tr').forEach(row => {
+                if (parseInt(row.dataset.id) === caseId) {
+                    row.style.backgroundColor = '#ebf8ff';
+                } else {
+                    row.style.backgroundColor = '';
+                }
+            });
+            
+            document.querySelectorAll('.mobile-case-card').forEach(card => {
+                if (parseInt(card.dataset.id) === caseId) {
+                    card.style.borderLeftColor = '#2c5282';
+                    card.style.backgroundColor = '#f0f7ff';
+                } else {
+                    card.style.borderLeftColor = '#4299e1';
+                    card.style.backgroundColor = '';
+                }
+            });
+        }
+
+        function renderPagination() {
+            paginationEl.innerHTML = '';
+            
+            const totalPages = Math.ceil(filteredCases.length / itemsPerPage);
+            if (totalPages <= 1) return;
+            
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderCases();
+                }
+            });
+            paginationEl.appendChild(prevBtn);
+            
+            const pageInfo = document.createElement('button');
+            pageInfo.className = 'page-info';
+            pageInfo.innerHTML = `<i class="fas fa-file-alt"></i> 第 ${currentPage} 页 / 共 ${totalPages} 页`;
+            paginationEl.appendChild(pageInfo);
+            
+            const ELLIPSIS_THRESHOLD = 10;
+            
+            if (currentPage > 1) {
+                const firstPage = document.createElement('button');
+                firstPage.textContent = 1;
+                firstPage.addEventListener('click', () => {
+                    currentPage = 1;
+                    renderCases();
+                });
+                if (currentPage === 1) {
+                    firstPage.classList.add('active');
+                }
+                paginationEl.appendChild(firstPage);
+            }
+            
+            if (totalPages > ELLIPSIS_THRESHOLD) {
+                if (currentPage > 4) {
+                    const ellipsis1 = document.createElement('button');
+                    ellipsis1.textContent = '...';
+                    ellipsis1.className = 'ellipsis';
+                    ellipsis1.disabled = true;
+                    paginationEl.appendChild(ellipsis1);
+                }
+                
+                const startPage = Math.max(2, currentPage - 3);
+                const endPage = Math.min(totalPages - 1, currentPage + 3);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    if (i === 1 || i === totalPages) continue;
+                    
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    if (i === currentPage) {
+                        pageBtn.classList.add('active');
+                    }
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        renderCases();
+                    });
+                    paginationEl.appendChild(pageBtn);
+                }
+                
+                if (currentPage < totalPages - 3) {
+                    const ellipsis2 = document.createElement('button');
+                    ellipsis2.textContent = '...';
+                    ellipsis2.className = 'ellipsis';
+                    ellipsis2.disabled = true;
+                    paginationEl.appendChild(ellipsis2);
+                }
+            } else {
+                for (let i = 2; i < totalPages; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    if (i === currentPage) {
+                        pageBtn.classList.add('active');
+                    }
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        renderCases();
+                    });
+                    paginationEl.appendChild(pageBtn);
+                }
+            }
+            
+            if (totalPages > 1) {
+                const lastPage = document.createElement('button');
+                lastPage.textContent = totalPages;
+                lastPage.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    renderCases();
+                });
+                if (currentPage === totalPages) {
+                    lastPage.classList.add('active');
+                }
+                paginationEl.appendChild(lastPage);
+            }
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderCases();
+                }
+            });
+            paginationEl.appendChild(nextBtn);
+        }
+
+        function analyzeCases() {
+            const start = new Date(startDate.value);
+            const end = new Date(endDate.value);
+            
+            const dateFilteredCases = penaltyCases.filter(caseItem => {
+                const caseDate = parseChineseDateToStandard(caseItem.issueDate);
+                if (!caseDate) return false;
+                
+                const caseDateObj = new Date(caseDate);
+                return caseDateObj >= start && caseDateObj <= end;
+            });
+            
+            renderStatsSummary(dateFilteredCases);
+        }
+        
+        function extractPenaltyMeasures(text) {
+            if (!text) return [];
+            
+            const measures = [
+                "警告", "责令改正", "撤销管理人登记", "警示函", "公开谴责", 
+                "暂停受理私募基金产品备案", "取消基金从业资格",
+                "监管谈话", "取消会员资格", "加入黑名单",
+            ];
+            
+       
+            const foundMeasures = [];
+            measures.forEach(measure => {
+                if (text.includes(measure)) {
+                    foundMeasures.push(measure);
+                }
+            });
+            
+            return foundMeasures;
+        }
+        
+        function renderStatsSummary(cases) {
+            const totalCases = cases.length;
+            
+  
+            const agencyCounts = {};
+            cases.forEach(c => {
+                agencyCounts[c.regulatoryAgency] = (agencyCounts[c.regulatoryAgency] || 0) + 1;
+            });
+            const topAgency = Object.entries(agencyCounts).sort((a, b) => b[1] - a[1])[0] || ['无数据', 0];
+            
+          
+            const penaltyMeasureCounts = {};
+            cases.forEach(c => {
+                const measures = extractPenaltyMeasures(c.managerPenalty);
+                measures.forEach(measure => {
+                    penaltyMeasureCounts[measure] = (penaltyMeasureCounts[measure] || 0) + 1;
+                });
+            });
+            
+        
+            let topMeasure = ['无数据', 0];
+            Object.entries(penaltyMeasureCounts).forEach(([measure, count]) => {
+                if (count > topMeasure[1]) {
+                    topMeasure = [measure, count];
+                }
+            });
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <i class="fas fa-file-alt fa-2x" style="color: #2c5282;"></i>
+                    <div class="stat-value">${totalCases}</div>
+                    <div class="stat-label">案例总数</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-balance-scale fa-2x" style="color: #2c5282;"></i>
+                    <div class="stat-value">${topAgency[1]}</div>
+                    <div class="stat-label">"${topAgency[0]}"<br>处分/处罚最多<br>注：如管理人被处分，同时处分从业人员的，决定书按一份计算</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle fa-2x" style="color: #2c5282;"></i>
+                    <div class="stat-value">${topMeasure[1]}</div>
+                    <div class="stat-label">"${truncateText(topMeasure[0], 20)}"<br>高频监管措施</div>
+                </div>
+            `;
+        }
+
+       document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
