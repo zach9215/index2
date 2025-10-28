@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私募基金行业数据</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f0ff 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 50px 0 20px;
+            margin-bottom: 20px;
+            position: relative;
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+        }
+        
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, #4C72B0, #55A868);
+            border-radius: 2px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0c4ff;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .back-to-home {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .back-to-home:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .back-to-home i {
+            margin-right: 5px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafd);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            min-width: 280px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #4C72B0, #55A868);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-title {
+            font-size: 1.15rem;
+            color: #718096;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #4C72B0, #55A868);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-subtitle {
+            font-size: 1rem;
+            color: #718096;
+        }
+        
+        .charts-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.6rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #4C72B0;
+            background: #eef5ff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .chart-card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1.35rem;
+            color: #2c3e50;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #5a6a85;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .chart-btn:hover {
+            background: #4C72B0;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 114, 176, 0.2);
+        }
+        
+        .chart-wrapper {
+            height: 380px;
+            position: relative;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            padding-top: 15px;
+            border-top: 1px solid #edf2f7;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+        }
+        
+        .data-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+            margin-bottom: 40px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            overflow: hidden;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding-bottom: 15px;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .table-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #718096;
+            font-size: 0.95rem;
+        }
+        
+        .footer-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d1d9e6, transparent);
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        
+        .footer p {
+            margin-bottom: 8px;
+        }
+        
+        .footer a {
+            color: #4C72B0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 1200px) {
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-card {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .chart-title {
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                line-height: 1.2;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .chart-title {
+                font-size: 1.2rem;
+            }
+            
+            .chart-wrapper {
+                height: 300px;
+            }
+            
+            .chart-legend {
+                gap: 15px;
+                justify-content: flex-start;
+            }
+            
+            .table-title {
+                font-size: 1.3rem;
+            }
+            
+            .back-to-home {
+                top: 10px;
+                left: 10px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        .data-summary {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #c5d5f0 #f0f5ff;
+            padding: 12px 5px;
+            margin: 0 -10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #4C72B0;
+        }
+        
+        .data-summary::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .data-summary::-webkit-scrollbar-track {
+            background: #f0f5ff;
+            border-radius: 10px;
+        }
+        
+        .data-summary::-webkit-scrollbar-thumb {
+            background-color: #c5d5f0;
+            border-radius: 10px;
+        }
+        
+        .summary-item {
+            background: #f8fafd;
+            border-radius: 8px;
+            padding: 10px 14px;
+            min-width: 140px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .summary-label {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .summary-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .summary-value.securities { color: #4C72B0; }
+        .summary-value.equity { color: #55A868; }
+        .summary-value.other { color: #DD8452; }
+        .summary-value.asset { color: #8172B2; }
+        .summary-value.total { color: #C44E52; }
+        
+        .highlight {
+            animation: highlight 1.5s ease;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: rgba(76, 114, 176, 0.2); }
+            100% { background-color: transparent; }
+        }
+        
+        .chart-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #718096;
+            z-index: 10;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(76, 114, 176, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #4C72B0;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .unit-info {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 0.85rem;
+            color: #718096;
+            background: rgba(241, 245, 249, 0.7);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 5;
+        }
+        
+        .manager-group {
+            background-color: rgba(76, 114, 176, 0.1);
+        }
+        
+        .fund-group {
+            background-color: rgba(85, 168, 104, 0.1);
+        }
+        
+        .scale-group {
+            background-color: rgba(221, 132, 82, 0.1);
+        }
+        
+        .hidden-col {
+            display: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font-size: 1rem;
+            min-width: 1000px;
+        }
+        
+        th {
+            background: #f1f5f9;
+            padding: 16px;
+            text-align: left;
+            color: #4a5568;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #edf2f7;
+            color: #4a5568;
+            white-space: nowrap;
+        }
+        
+        tr:hover td {
+            background: #f8fafd;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: #f0f5ff;
+            border-radius: 10px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #c5d5f0;
+            border-radius: 10px;
+        }
+        
+        .scroll-hint {
+            text-align: center;
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .chart-note {
+            font-size: 0.85rem;
+            color: #718096;
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .fixed-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-to-home">
+                <i class="fas fa-arrow-left"></i> 返回导航
+            </a>
+            
+            <h1>私募基金行业数据</h1>
+            <div class="subtitle">数据截至2025年09月</div>
+        </header>
+        <div class="charts-section">
+            <div class="section-title">
+                <i class="fas fa-chart-pie"></i> 最新数据
+            </div>
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-title">管理人总数</div>
+                <div class="stat-value">19,404</div>
+                <div class="stat-subtitle">截至2025年9月</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">管理总规模</div>
+                <div class="stat-value">20.74万亿</div>
+                <div class="stat-subtitle">较上月上升0.07%</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">私募基金总数</div>
+                <div class="stat-value">137,245</div>
+                <div class="stat-subtitle">较上月减少677只</div>
+            </div>
+        </div>
+        
+        <div class="charts-section">
+            <div class="section-title">
+                <i class="fas fa-chart-line"></i> 管理人数据
+            </div>
+            <div class="chart-container">
+                <div class="chart-card">
+                    <div class="data-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">管理人总数</div>
+                            <div class="summary-value total">19,404家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">证券类</div>
+                            <div class="summary-value securities">7,614家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">股权、创投类</div>
+                            <div class="summary-value equity">11,607家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">其他类</div>
+                            <div class="summary-value other">177家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">资产配置类</div>
+                            <div class="summary-value asset">6家</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-header">
+                        <div class="chart-title">管理人数量变化趋势 (2014-2025)</div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="managerTrendChart"></canvas>
+                        <div class="chart-loading" id="managerLoading">
+                            <div class="spinner"></div>
+                            <p>图表数据加载中...</p>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #C44E52;"></div>
+                            <span>总数</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4C72B0;"></div>
+                            <span>证券类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #55A868;"></div>
+                            <span>股权、创投类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #DD8452;"></div>
+                            <span>其他类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #8172B2;"></div>
+                            <span>资产配置类</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="data-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">2025年总净增减</div>
+                            <div class="summary-value total">-885家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">证券类</div>
+                            <div class="summary-value securities">-386家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">股权、创投类</div>
+                            <div class="summary-value equity">-476家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">其他类</div>
+                            <div class="summary-value other">-22家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">资产配置类</div>
+                            <div class="summary-value asset">-1家</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-header">
+                        <div class="chart-title">管理人年度净增减数量 (2019-2025)</div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="netChangeChart"></canvas>
+                        <div class="chart-loading" id="netChangeLoading">
+                            <div class="spinner"></div>
+                            <p>图表数据加载中...</p>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4C72B0;"></div>
+                            <span>证券类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #55A868;"></div>
+                            <span>股权、创投类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #DD8452;"></div>
+                            <span>其他类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #8172B2;"></div>
+                            <span>资产配置类</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="charts-section">
+            <div class="section-title">
+                <i class="fas fa-chart-bar"></i> 私募基金产品数据
+            </div>
+            <div class="chart-container">
+                <div class="chart-card">
+                    <div class="data-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">管理总规模</div>
+                            <div class="summary-value total">20.74万亿</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">证券类</div>
+                            <div class="summary-value securities">5.97万亿</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">股权、创投类</div>
+                            <div class="summary-value equity">14.46万亿</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">其他类</div>
+                            <div class="summary-value other">0.31万亿</div>
+                        </div>
+                        <div class="summary-item highlight">
+                            <div class="summary-label">资产配置类</div>
+                            <div class="summary-value asset">0.00万亿</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-header">
+                        <div class="chart-title">管理规模趋势 (2015-2025)</div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <div class="unit-info">单位：万亿元</div>
+                        <canvas id="scaleTrendChart"></canvas>
+                        <div class="chart-loading" id="scaleLoading">
+                            <div class="spinner"></div>
+                            <p>图表数据加载中...</p>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #C44E52;"></div>
+                            <span>总规模</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4C72B0;"></div>
+                            <span>证券类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #55A868;"></div>
+                            <span>股权、创投类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #DD8452;"></div>
+                            <span>其他类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #8172B2;"></div>
+                            <span>资产配置类</span>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="chart-card">
+                    <div class="data-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">私募基金总数</div>
+                            <div class="summary-value total">137,245只</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">证券类</div>
+                            <div class="summary-value securities">79,845只</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">股权、创投类</div>
+                            <div class="summary-value equity">56,613只</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">其他类</div>
+                            <div class="summary-value other">768只</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">资产配置类</div>
+                            <div class="summary-value asset">19只</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-header">
+                        <div class="chart-title">管理私募基金总数变化 (2019年11月-2025年9月)</div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="fundsCountChart"></canvas>
+                        <div class="chart-loading" id="fundsLoading">
+                            <div class="spinner"></div>
+                            <p>图表数据加载中...</p>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #C44E52;"></div>
+                            <span>总数</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4C72B0;"></div>
+                            <span>证券类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #55A868;"></div>
+                            <span>股权、创投类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #DD8452;"></div>
+                            <span>其他类</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #8172B2;"></div>
+                            <span>资产配置类</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="data-table">
+            <div class="table-header">
+                <div class="table-title">私募基金行业关键指标数据 (2025年)</div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="fixed-header">日期</th>
+                            <th class="manager-group fixed-header">管理人总数</th>
+                            <th class="manager-group fixed-header">证券类</th>
+                            <th class="manager-group fixed-header">股权、创投类</th>
+                            <th class="hidden-col fixed-header">资产配置类</th>
+                            <th class="fund-group fixed-header">基金总数量</th>
+                            <th class="fund-group fixed-header">股权、创投类</th>
+                            <th class="fund-group fixed-header">证券类</th>
+                            <th class="scale-group fixed-header">管理规模(万亿)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025-09-30</td>
+                            <td class="manager-group">19,404</td>
+                            <td class="manager-group">7,614</td>
+                            <td class="manager-group">11,607</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">137,245</td>
+                            <td class="fund-group">56,613</td>
+                            <td class="fund-group">79,845</td>
+                            <td class="scale-group">20.74</td>
+                        </tr>
+                        <tr>
+                            <td>2025-08-31</td>
+                            <td class="manager-group">19,614</td>
+                            <td class="manager-group">7,684</td>
+                            <td class="manager-group">11,740</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">137,922</td>
+                            <td class="fund-group">56,563</td>
+                            <td class="fund-group">80,521</td>
+                            <td class="scale-group">20.73</td>
+                        </tr>
+                        <tr>
+                            <td>2025-07-31</td>
+                            <td class="manager-group">19,700</td>
+                            <td class="manager-group">7,722</td>
+                            <td class="manager-group">11,785</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">139,430</td>
+                            <td class="fund-group">56,521</td>
+                            <td class="fund-group">82,059</td>
+                            <td class="scale-group">20.68</td>
+                        </tr>
+                        <tr>
+                            <td>2025-06-30</td>
+                            <td class="manager-group">19,756</td>
+                            <td class="manager-group">7,761</td>
+                            <td class="manager-group">11,801</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">140,558</td>
+                            <td class="fund-group">56,345</td>
+                            <td class="fund-group">83,356</td>
+                            <td class="scale-group">20.26</td>
+                        </tr>
+                        <tr>
+                            <td>2025-05-31</td>
+                            <td class="manager-group">19,832</td>
+                            <td class="manager-group">7,802</td>
+                            <td class="manager-group">11,835</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">140,870</td>
+                            <td class="fund-group">56,174</td>
+                            <td class="fund-group">83,829</td>
+                            <td class="scale-group">20.27</td>
+                        </tr>
+                        <tr>
+                            <td>2025-04-30</td>
+                            <td class="manager-group">19,891</td>
+                            <td class="manager-group">7,827</td>
+                            <td class="manager-group">11,867</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">141,579</td>
+                            <td class="fund-group">56,035</td>
+                            <td class="fund-group">84,673</td>
+                            <td class="scale-group">20.22</td>
+                        </tr>
+                        <tr>
+                            <td>2025-03-31</td>
+                            <td class="manager-group">19,951</td>
+                            <td class="manager-group">7,860</td>
+                            <td class="manager-group">11,894</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">142,278</td>
+                            <td class="fund-group">55,790</td>
+                            <td class="fund-group">85,614</td>
+                            <td class="scale-group">19.97</td>
+                        </tr>
+                        <tr>
+                            <td>2025-02-28</td>
+                            <td class="manager-group">20,007</td>
+                            <td class="manager-group">7,893</td>
+                            <td class="manager-group">11,916</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">143,182</td>
+                            <td class="fund-group">55,589</td>
+                            <td class="fund-group">86,708</td>
+                            <td class="scale-group">19.93</td>
+                        </tr>
+                        <tr>
+                            <td>2025-01-31</td>
+                            <td class="manager-group">20,025</td>
+                            <td class="manager-group">7,904</td>
+                            <td class="manager-group">11,923</td>
+                            <td class="hidden-col">6</td>
+                            <td class="fund-group">144,071</td>
+                            <td class="fund-group">55,417</td>
+                            <td class="fund-group">87,764</td>
+                            <td class="scale-group">19.92</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="scroll-hint">
+                <i class="fas fa-arrows-left-right"></i> 左右滑动查看完整表格
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-line"></div>
+            <p>© 2025 | 私募基金数据</p>
+            <p>【联系邮箱】<a href="mailto:PLSZach@163.com">PLSZach@163.com</a> | 【公众号】判理社</p>
+        </div>
+    </div>
+    
+    <script>
+        const managerData = {
+            securities: [1438, 10965, 7781, 8467, 8989, 8857, 8908, 9069, 9023, 8469, 8000, 7904, 7893, 7860, 7827, 7802, 7761, 7722, 7684, 7614],
+            equity: [3366, 13241, 9206, 13200, 14683, 14882, 14986, 15012, 14303, 12893, 12083, 11923, 11916, 11894, 11867, 11835, 11801, 11785, 11740, 11607],
+            other: [151, 799, 446, 779, 776, 727, 658, 520, 332, 254, 199, 192, 192, 191, 191, 189, 188, 187, 184, 177],
+            asset: [0, 0, 0, 0, 0, 5, 9, 9, 9, 9, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            total: [4955, 25005, 17433, 22446, 24448, 24471, 24561, 24610, 23667, 21625, 20289, 20025, 20007, 19951, 19891, 19832, 19756, 19700, 19614, 19404]
+        };
+        
+        const netChangeData = {
+            securities: [-132, 51, 161, -46, -554, -469, -386],
+            equity: [199, 104, 26, -709, -1410, -810, -476],
+            asset: [5, 4, 0, 0, 0, -2, -1],
+            other: [-49, -69, -138, -188, -78, -55, -22],
+            total: [23, 90, 49, -943, -2042, -1336, -885]
+        };
+        
+        const fundsCountData = {
+            securities: [40997, 41399, 42020, 42614, 44117, 44277, 44654, 45278, 
+                         46973, 48522, 50263, 51196, 52599, 54355, 56161, 57539, 
+                         59471, 61307, 62399, 64579, 67062, 69332, 71901, 73261, 
+                         74947, 76839, 78843, 79551, 81002, 82267, 83013, 83813, 
+                         85344, 86877, 88307, 89390, 90904, 92604, 94264, 95737, 
+                         97429, 99775, 99064, 98222, 98426, 98110, 97964, 98068, 
+                         98090, 97258, 97571, 97305, 96509, 96567, 95798, 95088, 
+                         94216, 92363, 91497, 90853, 89496, 87833, 87764, 86708, 
+                         85614, 84673, 83829, 83356, 82059, 80521, 79845],
+            equity: [36243, 36468, 36726, 36950, 37274, 37546, 37573, 37531, 
+                    37868, 38141, 38531, 38834, 39329, 39802, 40187, 40635, 
+                    40923, 41313, 41638, 41984, 42493, 42907, 43493, 43957, 
+                    44569, 45311, 46127, 46495, 47113, 47579, 47924, 48261, 
+                    48782, 49232, 49636, 49972, 50246, 50878, 50616, 50983, 
+                    51574, 52336, 52411, 52748, 53118, 53534, 53737, 54044, 
+                    54356, 54648, 55049, 54895, 55070, 55171, 55163, 55140, 
+                    55317, 55105, 55127, 55259, 55320, 55415, 55417, 55589, 
+                    55790, 56035, 56174, 56345, 56521, 56563, 56613],
+            other: [4054, 3867, 3846, 3811, 3673, 3550, 3464, 3277, 
+                    3201, 3112, 3006, 2916, 2801, 2685, 2618, 2582, 
+                    2446, 2391, 2295, 2271, 2204, 2106, 2074, 2034, 
+                    1989, 1943, 1920, 1882, 1812, 1792, 1770, 1694, 
+                    1682, 1655, 1599, 1597, 1564, 1538, 1435, 1420, 
+                    1412, 1397, 1368, 1323, 1306, 1289, 1256, 1247, 
+                    1224, 1146, 1109, 1062, 1054, 1031, 1016, 1005, 
+                    986, 925, 920, 903, 897, 885, 870, 866, 
+                    855, 852, 848, 838, 831, 819, 768],
+            asset: [0, 0, 0, 0, 0, 0, 0, 9, 
+                    9, 9, 9, 9, 10, 10, 11, 12, 
+                    12, 14, 13, 14, 16, 16, 16, 16, 
+                    17, 24, 26, 26, 28, 29, 29, 29, 
+                    28, 28, 28, 29, 29, 28, 30, 31, 
+                    31, 31, 31, 29, 28, 28, 28, 28, 
+                    28, 27, 27, 26, 26, 25, 24, 24, 
+                    24, 22, 22, 22, 22, 22, 20, 19, 
+                    19, 19, 19, 19, 19, 19, 19],
+            total: [40997+36243+4054, 41399+36468+3867, 42020+36726+3846, 42614+36950+3811, 
+                   44117+37274+3673, 44277+37546+3550, 44654+37573+3464, 45278+37531+3277+9, 
+                   46973+37868+3201+9, 48522+38141+3112+9, 50263+38531+3006+9, 51196+38834+2916+9, 
+                   52599+39329+2801+10, 54355+39802+2685+10, 56161+40187+2618+11, 57539+40635+2582+12, 
+                   59471+40923+2446+12, 61307+41313+2391+14, 62399+41638+2295+13, 64579+41984+2271+14, 
+                   67062+42493+2204+16, 69332+42907+2106+16, 71901+43493+2074+16, 73261+43957+2034+16, 
+                   74947+44569+1989+17, 76839+45311+1943+24, 78843+46127+1920+26, 79551+46495+1882+26, 
+                   81002+47113+1812+28, 82267+47579+1792+29, 83013+47924+1770+29, 83813+48261+1694+29, 
+                   85344+48782+1682+28, 86877+49232+1655+28, 88307+49636+1599+28, 89390+49972+1597+29, 
+                   90904+50246+1564+29, 92604+50878+1538+28, 94264+50616+1435+30, 95737+50983+1420+31, 
+                   97429+51574+1412+31, 99775+52336+1397+31, 99064+52411+1368+31, 98222+52748+1323+29, 
+                   98426+53118+1306+28, 98110+53534+1289+28, 97964+53737+1256+28, 98068+54044+1247+28, 
+                   98090+54356+1224+28, 97258+54648+1146+27, 97571+55049+1109+27, 97305+54895+1062+26, 
+                   96509+55070+1054+26, 96567+55171+1031+25, 95798+55163+1016+24, 95088+55140+1005+24, 
+                   94216+55317+986+24, 92363+55105+925+22, 91497+55127+920+22, 90853+55259+903+22, 
+                   89496+55320+897+22, 87833+55415+885+22, 87764+55417+870+20, 86708+55589+866+19, 
+                   85614+55790+855+19, 84673+56035+852+19, 83829+56174+848+19, 83356+56345+838+19,
+                   82059+56521+831+19, 80521+56563+819+19, 79845+56613+768+19]
+        };
+        
+        const scaleData = {
+            securities: [8506, 8939, 9723, 10740, 11470, 13078, 15413, 16190, 16756, 19038, 17031, 17892, 18466, 
+                         19605, 20568, 
+                         22122, 22911, 23711, 24145, 24234, 26638, 27369, 27661, 27834, 28014, 26333, 23996, 23459, 22758, 23567,
+                         22460, 22189, 22765, 22800, 22858, 26100, 26021, 25845, 25649, 25452, 25362, 24101, 24021, 23867, 22773,
+                         22622, 22391, 21258, 21152, 21107, 23556, 23430, 23300, 24035, 23566, 23527, 24669, 24463, 24503, 25094,
+                         25288, 26116, 26223, 26360, 26523.65, 30939.86, 31500.49, 31803.8, 36810.15, 37430.73, 37662.3, 43569.74,
+                         43979.48, 44544.99, 48014.8, 48297.9, 48660.17, 54548.25, 55196.98, 55899.46, 60804.83, 61041.28, 61247.38,
+                         63440.06, 63420.45, 63464.17, 57910.05, 57887.91, 57853.31, 59801.09, 59834.07, 59766.43, 55636.4, 55601.79,
+                         55622.85, 56145.33, 56355.1, 56614.8785758673, 59368.6230616693, 59395.0683004278, 59454.5751785702, 
+                         58782.2428778691, 58870.8908722447, 58909.8618217446, 57261.4108975377, 57308.3562749082, 57217.21,
+                         55203.8472165196, 55146.6104459391, 55059.2324990847, 51952.32, 51871.34, 51993.02, 50339.43, 50258.66,
+                         50189.68, 52583.06, 52333.28, 52130.37, 52340.89, 52427.15, 52531.25, 55098.55, 55397.21, 55588.37, 58842.79, 59312.49, 59675.00],
+            equity: [16785, 17649, 19467, 20670, 22080, 23416, 24214, 25602, 26563, 28052, 28875, 30655, 32681, 
+                     34992, 37937, 
+                     39594, 42557, 47722, 52630, 39020, 42020, 43498, 46897, 51420, 52701, 54826, 55925, 56460, 58310, 61369,
+                     63668, 64816, 68308, 69346, 70913, 70900, 72719, 73434, 77633, 78869, 79467, 82598, 83057, 83465, 85003,
+                     85651, 86026, 87618, 88107, 88626, 91587, 91728, 91807, 93215, 93442, 93777, 96270, 97064, 97426, 98187,
+                     99060, 102087, 103517, 103561, 103551.8, 105890.19, 106155.01, 106839.31, 109721.19, 110035.17, 110610.01,
+                     116090.42, 116720.67, 116927.32, 119645.28, 119925.95, 120243.69, 125871.8, 126060.34, 126737.68, 127404.44,
+                     127637.44, 127820.41, 131175.49, 132133.4, 132372.4, 133978.2, 133956.07, 134166.42, 136740.29, 136962.33,
+                     136983.22, 137364.8, 137476.45, 137705.93, 139753.72, 140061.37, 140296.447693722, 141952.747207829, 
+                     142046.748433118, 142176.275985408, 143553.815393001, 143523.502886707, 143396.206241615, 143054.77067112,
+                     143243.278058539, 143320.87, 143273.877813105, 143025.14107486, 143184.886332137, 142587.91, 142583.89, 
+                     142422.22, 142408.54, 142100.73, 142099.58, 142749.02, 142783.25, 143018.6, 143215.56, 143329.46, 143571.07,
+                     143725.32, 143866.39, 143635.81, 144742.01, 144748.37, 144574.42],
+            asset: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                    0, 0, 
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8.38, 8.55, 8.55, 8.71, 
+                    8.76, 9.96, 9.96, 10.04, 19.08, 19.08, 19.69, 19.69, 20.57, 26.62, 26.62, 26.62, 
+                    41.83, 42.48, 46.48, 49.22, 49.22, 50.75, 50.87, 50.87, 50.87, 49.87, 49.87, 49.87, 
+                    52.96, 52.96, 52.81, 53.61, 56.03, 56.0335042912, 57.0335495417, 57.0341718887, 
+                    56.9741718887, 55.2943871192, 55.2943871192, 55.2943871192, 54.7961159232, 54.7961159232, 
+                    54.29, 54.3141613045, 54.0980805588, 54.0980805588, 53.49, 53.29, 53.29, 52.91, 
+                    51.5, 51.5, 51.59, 51.59, 51.59, 51.38, 49.29, 49.29, 
+                    49.11, 49.11, 49.11, 49.45, 49.45, 49.45],
+            other: [1019, 1033, 1088, 1281, 1289, 1347, 1432, 1692, 1732, 1831, 2015, 2177, 2278, 
+                    2420, 2479, 
+                    2779, 2805, 3272, 3536, 3337, 3983, 4153, 4353, 4758, 4822, 6294, 9562, 12270, 13485, 14533,
+                    15996, 16219, 16656, 16844, 17232, 20700, 21353, 21079, 21554, 21362, 21193, 21165, 20890, 20687, 19931,
+                    19634, 19366, 18536, 18472, 18209, 17931, 17931, 17729, 16931, 16760, 16655, 16006, 15910, 15452, 14915,
+                    14544, 14286, 13628, 13550, 13394.85, 12725.44, 12582.47, 12502.8, 11816.1, 11619.8, 11467.35, 10936.96,
+                    10926.57, 10742.37, 10180.61, 9977.15, 9948.84, 9429.62, 9205.15, 9155.21, 8608.73, 8563.77, 8525.1, 
+                    8118.25, 8091.43, 7924.42, 7755.87, 7722.87, 7588.73, 7268.38, 7206.99, 7149.46, 6967.72, 6943.09, 
+                    6913.61, 6393.38, 6383.66, 6364.4452782702, 6120.6778080788, 6111.1492810601, 6037.9831683668, 
+                    5848.4994127472, 5771.7262274402, 5740.6465216368, 5572.8835641045, 5524.8198732351, 5178.29, 
+                    4774.1269035062, 4616.4765491202, 4614.8518088032, 4430.5, 4393.61, 4389.58, 4136.66, 4051.68, 
+                    4020.49, 3879.6, 3873.12, 3853.75, 3556.18, 3537.92, 3528.35, 3361.9, 3359.16, 3284.41, 3186.09, 3160.25, 3111.97]
+        };
+        
+        scaleData.total = [];
+        for (let i = 0; i < scaleData.securities.length; i++) {
+            scaleData.total.push(
+                (scaleData.securities[i] + 
+                scaleData.equity[i] + 
+                scaleData.asset[i] + 
+                scaleData.other[i]) / 10000
+            );
+        }
+    
+        scaleData.total[scaleData.total.length - 1] = 20.74;
+        
+        function initCharts() {
+            const managerChart = new Chart(document.getElementById('managerTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06','2025-07','2025-08','2025-09'],
+                    datasets: [
+                        {
+                            label: '总数',
+                            data: managerData.total,
+                            borderColor: '#C44E52',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2,
+                            tension: 0.2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: '证券类',
+                            data: managerData.securities,
+                            backgroundColor: 'rgba(76, 114, 176, 0.1)',
+                            borderColor: '#4C72B0',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2,
+                            tension: 0.2,
+                            fill: true
+                        },
+                        {
+                            label: '股权、创投类',
+                            data: managerData.equity,
+                            backgroundColor: 'rgba(85, 168, 104, 0.1)',
+                            borderColor: '#55A868',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2,
+                            tension: 0.2,
+                            fill: true
+                        },
+                        {
+                            label: '其他类',
+                            data: managerData.other,
+                            backgroundColor: 'rgba(221, 132, 82, 0.1)',
+                            borderColor: '#DD8452',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2,
+                            tension: 0.2,
+                            fill: true
+                        },
+                        {
+                            label: '资产配置类',
+                            data: managerData.asset,
+                            backgroundColor: 'rgba(129, 114, 178, 0.1)',
+                            borderColor: '#8172B2',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2,
+                            tension: 0.2,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y.toLocaleString()}家`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '年份',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 10
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '管理人数量(家)',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+            
+            document.getElementById('managerLoading').style.display = 'none';
+            
+            const netChangeChart = new Chart(document.getElementById('netChangeChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+                    datasets: [
+                        {
+                            label: '证券类',
+                            data: netChangeData.securities,
+                            backgroundColor: '#4C72B0',
+                            borderColor: '#4C72B0',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7
+                        },
+                        {
+                            label: '股权、创投类',
+                            data: netChangeData.equity,
+                            backgroundColor: '#55A868',
+                            borderColor: '#55A868',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7
+                        },
+                        {
+                            label: '其他类',
+                            data: netChangeData.other,
+                            backgroundColor: '#DD8452',
+                            borderColor: '#DD8452',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7
+                        },
+                        {
+                            label: '资产配置类',
+                            data: netChangeData.asset,
+                            backgroundColor: '#8172B2',
+                            borderColor: '#8172B2',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}家`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: '年份',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: '净增减数量(家)',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+            
+            document.getElementById('netChangeLoading').style.display = 'none';
+            
+            const scaleYears = [];
+            for (let month = 1; month <= 12; month++) {
+                scaleYears.push(`2015-${String(month).padStart(2, '0')}`);
+            }
+            for (let month = 1; month <= 12; month++) {
+                if (month === 2) continue;
+                scaleYears.push(`2016-${String(month).padStart(2, '0')}`);
+            }
+            for (let year = 2017; year <= 2024; year++) {
+                for (let month = 1; month <= 12; month++) {
+                    scaleYears.push(`${year}-${String(month).padStart(2, '0')}`);
+                }
+            }
+            for (let month = 1; month <= 9; month++) {
+                scaleYears.push(`2025-${String(month).padStart(2, '0')}`);
+            }
+            
+            const scaleChart = new Chart(document.getElementById('scaleTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: scaleYears,
+                    datasets: [
+                        {
+                            label: '总规模',
+                            data: scaleData.total,
+                            borderColor: '#C44E52',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.3,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: '证券类',
+                            data: scaleData.securities.map(v => v / 10000),
+                            backgroundColor: 'rgba(76, 114, 176, 0.1)',
+                            borderColor: '#4C72B0',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: '股权、创投类',
+                            data: scaleData.equity.map(v => v / 10000),
+                            backgroundColor: 'rgba(85, 168, 104, 0.1)',
+                            borderColor: '#55A868',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: '其他类',
+                            data: scaleData.other.map(v => v / 10000),
+                            backgroundColor: 'rgba(221, 132, 82, 0.1)',
+                            borderColor: '#DD8452',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: '资产配置类',
+                            data: scaleData.asset.map(v => v / 10000),
+                            backgroundColor: 'rgba(129, 114, 178, 0.1)',
+                            borderColor: '#8172B2',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}万亿元`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '日期',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 24,
+                                callback: function(value, index, values) {
+                                    if (index % 12 === 0) {
+                                        return this.getLabelForValue(value);
+                                    }
+                                    return '';
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '管理规模(万亿元)',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+            
+            document.getElementById('scaleLoading').style.display = 'none';
+            
+            const fundLabels = [];
+            for (let month = 11; month <= 12; month++) {
+                fundLabels.push(`2019-${String(month).padStart(2, '0')}`);
+            }
+            for (let year = 2020; year <= 2024; year++) {
+                for (let month = 1; month <= 12; month++) {
+                    fundLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                }
+            }
+            for (let month = 1; month <= 9; month++) {
+                fundLabels.push(`2025-${String(month).padStart(2, '0')}`);
+            }
+            
+            const fundsChart = new Chart(document.getElementById('fundsCountChart'), {
+                type: 'line',
+                data: {
+                    labels: fundLabels,
+                    datasets: [
+                        {
+                            label: '总数',
+                            data: fundsCountData.total,
+                            borderColor: '#C44E52',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.2,
+                            borderDash: [5, 5]
+                        },
+                        {
+                            label: '证券类',
+                            data: fundsCountData.securities,
+                            backgroundColor: 'rgba(76, 114, 176, 0.1)',
+                            borderColor: '#4C72B0',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.2
+                        },
+                        {
+                            label: '股权、创投类',
+                            data: fundsCountData.equity,
+                            backgroundColor: 'rgba(85, 168, 104, 0.1)',
+                            borderColor: '#55A868',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.2
+                        },
+                        {
+                            label: '其他类',
+                            data: fundsCountData.other,
+                            backgroundColor: 'rgba(221, 132, 82, 0.1)',
+                            borderColor: '#DD8452',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.2
+                        },
+                        {
+                            label: '资产配置类',
+                            data: fundsCountData.asset,
+                            backgroundColor: 'rgba(129, 114, 178, 0.1)',
+                            borderColor: '#8172B2',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y ? context.parsed.y.toLocaleString() : '无数据'}只`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '日期',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 12,
+                                callback: function(value, index, values) {
+                                    if (index % 6 === 0) {
+                                        return this.getLabelForValue(value);
+                                    }
+                                    return '';
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '基金只数(只)',
+                                color: '#718096',
+                                font: {
+                                    size: 13
+                                }
+                            },
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+            
+            document.getElementById('fundsLoading').style.display = 'none';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initCharts, 1000);
+        });
+    </script>
+</body>
+</html>
